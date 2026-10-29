@@ -42,8 +42,14 @@ header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
 #dHead{margin:14px 0}
 #dHead h2{font-size:1.8rem}
-#player{aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;max-height:50vh;width:100%}
-#player.on{position:sticky;top:0;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+#player{aspect-ratio:16/9;background:#000;overflow:hidden;max-height:50vh;width:100%}
+#stick{border-radius:10px;overflow:hidden;background:var(--panel)}
+#stick.on{position:sticky;top:0;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.vnav{display:flex;gap:6px;padding:8px}
+.vnav button{flex:1;font:inherit;font-size:.9rem;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 4px;border-radius:8px;cursor:pointer}
+.vnav #nResume{flex:1.4;background:var(--acc);color:#fff;border-color:var(--acc)}
+.vnav button:disabled{opacity:.4;cursor:default}
+#vidList{position:relative;max-height:55vh;overflow-y:auto}
 header[hidden]{display:none}
 #player iframe{width:100%;height:100%;border:0}
 .empty{display:grid;place-items:center;height:100%;color:#9ab;text-align:center;padding:20px}
@@ -116,7 +122,9 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   <button class="btn ghost" id="back">&larr; Semua kitab</button>
   <div id="dHead"></div>
   <div class="cols"><div class="colL">
-  <div id="player"></div>
+  <div id="stick"><div id="player"></div>
+    <div class="vnav"><button type="button" id="nPrev">&larr; Sebelumnya</button><button type="button" id="nResume">Sambung tonton</button><button type="button" id="nNext">Seterusnya &rarr;</button></div>
+  </div>
   <div class="seg" id="seg"><button data-t="nota" class="on">Nota</button><button data-t="kitab">Kitab</button></div>
   <div class="panel now" id="now" hidden>
       <h2 id="vTitle"></h2>
@@ -157,6 +165,7 @@ Tasawuf,Hikmah,Hikam Ibn Ata'illah,Mutiara hikmah tasawuf,Hikmah 1,${V},Ustaz Co
 const KEY = "pengajian_kitab_v1";
 const store = JSON.parse(localStorage.getItem(KEY) || '{"w":{},"n":{},"p":{}}');
 store.d = store.d || {};
+store.l = store.l || {};
 const save = () => localStorage.setItem(KEY, JSON.stringify(store));
 const $ = id => document.getElementById(id);
 let videos = [], kitabList = [], cat = "all", filter = "all", curK = null, curVid = null, yt = null, timer = null, apiReady = false;
@@ -224,7 +233,7 @@ function renderHome(){
     <small>${k.vids.length} kuliah, ${p}% selesai</small><div class="bar"><i style="width:${p}%"></i></div></button></div>`
   }).join("")+`</div>`).join("")||`<div class="none">Tiada kitab dijumpai. Cuba ejaan lain atau kategori lain.</div>`;
 }
-function renderDetail(){
+function renderDetail(sc){
   const k=curK,p=pct(k.vids),d=k.vids.filter(isDone).length;
   $("dHead").innerHTML=`<h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:2px 0 0">${esc(k.desc)}</p>`:""}
     <div class="bar big"><i style="width:${p}%"></i></div><small>${d} daripada ${k.vids.length} kuliah selesai, ${p}%</small>`;
@@ -236,6 +245,24 @@ function renderDetail(){
     <svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l13 7.5-13 7.5z"/></svg><span>${i+1}. ${esc(v.title)}<br><small>${esc(v.guru)}${store.n[v.key]?(v.guru?", ":"")+"ada nota":""}</small></span>
     <small class="pc">${pc?pc+"%":""}</small></button>`}).join("")
     :`<div class="none">Tiada kuliah dalam senarai ini.</div>`;
+  renderNav();if(sc)scrollList();
+}
+function resumeTarget(){
+  const v=curK.vids,li=v.findIndex(x=>x.key===store.l[curK.name]);
+  if(li>=0){if(!isDone(v[li]))return v[li];const n=v.slice(li+1).find(x=>!isDone(x));if(n)return n}
+  return v.find(x=>!isDone(x))||null;
+}
+function renderNav(){
+  const v=curK.vids,i=curVid?v.indexOf(curVid):-1,t=resumeTarget();
+  const any=v.some(x=>isDone(x)||(store.p[x.key]||0)>5);
+  $("nPrev").disabled=i<=0;$("nNext").disabled=i<0||i>=v.length-1;
+  $("nResume").textContent=t?(any?"Sambung tonton":"Mula tonton"):"Ulang dari awal";
+}
+function scrollList(){
+  if(!curK)return;
+  const box=$("vidList");let el=box.querySelector(".vid.on");
+  if(!el){const t=resumeTarget();if(t)el=[...box.children].find(x=>x.dataset.v===t.key)}
+  if(el)box.scrollTop=Math.max(0,el.offsetTop-box.clientHeight/2+el.offsetHeight/2);
 }
 function refresh(){renderRing();curK?renderDetail():renderHome()}
 
@@ -249,7 +276,7 @@ function route(){
   $("hdr").hidden=!!k;
   $("detail").classList.remove("tk");[...$("seg").children].forEach((x,i)=>x.classList.toggle("on",!i));
   updatePdf();
-  refresh();scrollTo(0,0);
+  refresh();scrollTo(0,0);scrollList();
 }
 window.onhashchange=route;
 $("back").onclick=()=>{location.hash=""};
@@ -259,6 +286,9 @@ $("q").oninput=renderHome;
 $("tabs").onclick=e=>{const b=e.target.closest("[data-f]");if(b){filter=b.dataset.f;renderDetail()}};
 $("vidList").onclick=e=>{const b=e.target.closest("[data-v]");if(b)play(curK.vids.find(v=>v.key===b.dataset.v))};
 $("toggleBtn").onclick=()=>setDone(curVid,!isDone(curVid));
+$("nPrev").onclick=()=>{const i=curK.vids.indexOf(curVid);if(i>0)play(curK.vids[i-1])};
+$("nNext").onclick=()=>{const i=curK.vids.indexOf(curVid);if(i>=0&&i<curK.vids.length-1)play(curK.vids[i+1])};
+$("nResume").onclick=()=>play(resumeTarget()||curK.vids[0]);
 let nt;$("note").oninput=()=>{if(!curVid)return;clearTimeout(nt);nt=setTimeout(()=>{
   const t=$("note").value.trim();if(t)store.n[curVid.key]=t;else delete store.n[curVid.key];
   save();$("saved").textContent="Nota disimpan.";renderDetail()},500)};
@@ -269,21 +299,21 @@ window.onYouTubeIframeAPIReady=()=>{apiReady=true};
 function resetPlayer(){
   clearInterval(timer);
   if(yt&&yt.destroy){try{yt.destroy()}catch(e){}}
-  yt=null;curVid=null;$("now").hidden=true;$("player").classList.remove("on");
+  yt=null;curVid=null;$("now").hidden=true;$("stick").classList.remove("on");
   $("player").innerHTML='<div class="empty">Pilih satu kuliah untuk mula belajar.</div>';
 }
 function play(v){
-  clearInterval(timer);curVid=v;$("now").hidden=false;
+  clearInterval(timer);curVid=v;$("now").hidden=false;store.l[curK.name]=v.key;save();
   $("vTitle").textContent=v.title;$("vMeta").textContent=v.guru||v.kitab;
   $("note").value=store.n[v.key]||"";$("saved").textContent="";updateToggle();
   if(yt&&yt.destroy){try{yt.destroy()}catch(e){}}
-  $("player").classList.add("on");
+  $("stick").classList.add("on");
   $("player").innerHTML='<div id="yt"></div>';
   const start=isDone(v)?0:Math.max(0,Math.floor((store.p[v.key]||0)-3));
   const make=()=>{yt=new YT.Player("yt",{videoId:v.id,playerVars:{start,rel:0},
     events:{onStateChange:e=>{if(e.data===0)setDone(v,true)}}});timer=setInterval(track,2000)};
   const wait=()=>{if(curVid!==v)return;apiReady?make():setTimeout(wait,400)};wait();
-  renderDetail();updatePdf();
+  renderDetail(true);updatePdf();
 }
 function track(){
   if(!yt||!yt.getDuration||!curVid)return;
