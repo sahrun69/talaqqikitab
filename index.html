@@ -74,6 +74,8 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 .pdfwrap{position:relative;flex:1;min-height:70vh}
 #pdfFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
 .shield{position:absolute;top:0;right:0;width:76px;height:64px;z-index:2}
+#pdfBox.full{display:flex;position:fixed;inset:0;z-index:100;height:100vh;height:100dvh;margin:0;border-radius:0;border:0}
+.pdfbar .btn{padding:5px 12px;font-size:.93rem}
 #detail.nopdf #pdfBox{display:none}
 @media(max-width:979px){
   #pdfBox{display:none}
@@ -127,7 +129,7 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   <div class="panel" id="vidList"></div>
   </div>
   <aside class="panel" id="pdfBox">
-    <div class="pdfbar"><b>Halaman kitab</b></div>
+    <div class="pdfbar"><b>Halaman kitab</b><button class="btn ghost" id="pdfFull" type="button">Besarkan</button></div>
     <div class="pdfwrap"><iframe id="pdfFrame" title="Halaman kitab PDF" src="about:blank"></iframe><div class="shield"></div></div>
   </aside>
   </div>
@@ -243,6 +245,7 @@ function route(){
   resetPlayer();
   if(k){curK=k;filter="all";$("home").hidden=true;$("detail").hidden=false}
   else{curK=null;$("home").hidden=false;$("detail").hidden=true}
+  setFull(false);
   $("hdr").hidden=!!k;
   $("detail").classList.remove("tk");[...$("seg").children].forEach((x,i)=>x.classList.toggle("on",!i));
   updatePdf();
@@ -311,6 +314,13 @@ function updatePdf(){
 $("seg").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;
   $("detail").classList.toggle("tk",b.dataset.t==="kitab");
   [...$("seg").children].forEach(x=>x.classList.toggle("on",x===b))};
+function setFull(on){
+  $("pdfBox").classList.toggle("full",on);
+  document.body.style.overflow=on?"hidden":"";
+  $("pdfFull").textContent=on?"Tutup":"Besarkan";
+}
+$("pdfFull").onclick=()=>setFull(!$("pdfBox").classList.contains("full"));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")setFull(false)});
 const mq=matchMedia("(min-width:980px)");
 function placePdf(){const b=$("pdfBox");if(mq.matches)document.querySelector(".cols").appendChild(b);else $("seg").after(b)}
 mq.addEventListener("change",placePdf);placePdf();
