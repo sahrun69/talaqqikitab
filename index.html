@@ -42,10 +42,12 @@ header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
 #dHead{margin:14px 0}
 #dHead h2{font-size:1.8rem}
-#player{aspect-ratio:16/9;background:#000;border-radius:10px 10px 0 0;overflow:hidden}
+#player{aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;max-height:50vh;width:100%}
+#player.on{position:sticky;top:0;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+header[hidden]{display:none}
 #player iframe{width:100%;height:100%;border:0}
 .empty{display:grid;place-items:center;height:100%;color:#9ab;text-align:center;padding:20px}
-.now{padding:16px 18px}
+.now{padding:16px 18px;margin-top:12px}
 .now h2{font-size:1.5rem}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px;color:var(--mute)}
 button.btn{font:inherit;font-weight:600;border:1px solid var(--acc);background:var(--acc);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer}
@@ -66,7 +68,7 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 </style>
 </head>
 <body>
-<header>
+<header id="hdr">
   <div class="ring" id="ring"><span id="ringTxt">0%</span></div>
   <div><h1>Himpunan Pengajian Kitab</h1><p id="sumTxt">Memuatkan senarai…</p></div>
 </header>
@@ -88,15 +90,13 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 <div class="wrap" id="detail" hidden>
   <button class="btn ghost" id="back">&larr; Semua kitab</button>
   <div id="dHead"></div>
-  <div class="panel">
-    <div id="player"></div>
-    <div class="now" id="now" hidden>
+  <div id="player"></div>
+  <div class="panel now" id="now" hidden>
       <h2 id="vTitle"></h2>
       <div class="row"><span id="vMeta"></span><button class="btn ghost" id="toggleBtn"></button></div>
       <label for="note" style="display:block;margin-top:14px;font-weight:600">Nota untuk kuliah ini</label>
       <textarea id="note" placeholder="Tulis faedah, soalan atau catatan di sini. Disimpan automatik."></textarea>
       <small id="saved"></small>
-    </div>
   </div>
   <div class="tabs" id="tabs"></div>
   <div class="panel" id="vidList"></div>
@@ -211,6 +211,7 @@ function route(){
   resetPlayer();
   if(k){curK=k;filter="all";$("home").hidden=true;$("detail").hidden=false}
   else{curK=null;$("home").hidden=false;$("detail").hidden=true}
+  $("hdr").hidden=!!k;
   refresh();scrollTo(0,0);
 }
 window.onhashchange=route;
@@ -231,7 +232,7 @@ window.onYouTubeIframeAPIReady=()=>{apiReady=true};
 function resetPlayer(){
   clearInterval(timer);
   if(yt&&yt.destroy){try{yt.destroy()}catch(e){}}
-  yt=null;curVid=null;$("now").hidden=true;
+  yt=null;curVid=null;$("now").hidden=true;$("player").classList.remove("on");
   $("player").innerHTML='<div class="empty">Pilih satu kuliah untuk mula belajar.</div>';
 }
 function play(v){
@@ -239,6 +240,7 @@ function play(v){
   $("vTitle").textContent=v.title;$("vMeta").textContent=v.guru||v.kitab;
   $("note").value=store.n[v.key]||"";$("saved").textContent="";updateToggle();
   if(yt&&yt.destroy){try{yt.destroy()}catch(e){}}
+  $("player").classList.add("on");
   $("player").innerHTML='<div id="yt"></div>';
   const start=isDone(v)?0:Math.max(0,Math.floor((store.p[v.key]||0)-3));
   const make=()=>{yt=new YT.Player("yt",{videoId:v.id,playerVars:{start,rel:0},
