@@ -54,9 +54,10 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 .vid{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);color:inherit;font:inherit;padding:11px 14px;cursor:pointer}
 .vid:first-child{border-top:0}
 .vid:hover,.vid.on{background:var(--sel)}
-.dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--mute)}
-.vid.done .dot{background:var(--ok);border-color:var(--ok);box-shadow:inset 0 0 0 3px var(--panel)}
-.vid.part .dot{border-color:var(--gold)}
+.pl{width:22px;height:22px;fill:none;stroke:var(--mute);stroke-width:2;stroke-linejoin:round}
+.vid.part .pl{stroke:var(--gold)}
+.vid.done .pl{fill:var(--ok);stroke:var(--ok)}
+.pc{font-weight:600}
 </style>
 </head>
 <body>
@@ -110,6 +111,7 @@ Tasawuf,Hikmah,Hikam Ibn Ata'illah,Mutiara hikmah tasawuf,Hikmah 1,${V},Ustaz Co
 /* ============ STATE ============ */
 const KEY = "pengajian_kitab_v1";
 const store = JSON.parse(localStorage.getItem(KEY) || '{"w":{},"n":{},"p":{}}');
+store.d = store.d || {};
 const save = () => localStorage.setItem(KEY, JSON.stringify(store));
 const $ = id => document.getElementById(id);
 let videos = [], kitabList = [], cat = "all", filter = "all", curK = null, curVid = null, yt = null, timer = null, apiReady = false;
@@ -154,6 +156,7 @@ async function load(){
 
 /* ============ PAPARAN ============ */
 const isDone=v=>!!store.w[v.key];
+const vpct=v=>{if(isDone(v))return 100;const p=store.p[v.key]||0,d=store.d[v.key];return d&&p>5?Math.min(99,Math.max(1,Math.round(p/d*100))):0};
 const pct=l=>l.length?Math.round(l.filter(isDone).length/l.length*100):0;
 
 function renderRing(){
@@ -182,10 +185,10 @@ function renderDetail(){
   $("tabs").innerHTML=[["all","Semua"],["todo","Belum ditonton"],["done","Telah ditonton"]]
     .map(([f,t])=>`<button data-f="${f}" class="${filter===f?"on":""}">${t}</button>`).join("");
   const list=k.vids.map((v,i)=>({v,i})).filter(x=>filter==="all"||(filter==="done")===isDone(x.v));
-  $("vidList").innerHTML=list.length?list.map(({v,i})=>{const pos=store.p[v.key]||0;
-    return `<button class="vid ${isDone(v)?"done":pos>5?"part":""} ${curVid&&curVid.key===v.key?"on":""}" data-v="${v.key}">
-    <span class="dot"></span><span>${i+1}. ${esc(v.title)}<br><small>${esc(v.guru)}${store.n[v.key]?(v.guru?", ":"")+"ada nota":""}</small></span>
-    <small>${isDone(v)?"Selesai":pos>5?"Separuh":""}</small></button>`}).join("")
+  $("vidList").innerHTML=list.length?list.map(({v,i})=>{const pc=vpct(v);
+    return `<button class="vid ${isDone(v)?"done":pc>0?"part":""} ${curVid&&curVid.key===v.key?"on":""}" data-v="${v.key}">
+    <svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l13 7.5-13 7.5z"/></svg><span>${i+1}. ${esc(v.title)}<br><small>${esc(v.guru)}${store.n[v.key]?(v.guru?", ":"")+"ada nota":""}</small></span>
+    <small class="pc">${pc?pc+"%":""}</small></button>`}).join("")
     :`<div class="none">Tiada kuliah dalam senarai ini.</div>`;
 }
 function refresh(){renderRing();curK?renderDetail():renderHome()}
@@ -234,8 +237,10 @@ function play(v){
 function track(){
   if(!yt||!yt.getDuration||!curVid)return;
   const d=yt.getDuration(),t=yt.getCurrentTime();if(!d)return;
+  const b=vpct(curVid);store.d[curVid.key]=d;
   if(t>(store.p[curVid.key]||0)){store.p[curVid.key]=t;save()}
   if(t/d>=0.9&&!isDone(curVid))setDone(curVid,true);
+  else if(vpct(curVid)!==b)renderDetail();
 }
 function setDone(v,val){if(val)store.w[v.key]=1;else delete store.w[v.key];save();updateToggle();refresh()}
 function updateToggle(){if(curVid)$("toggleBtn").textContent=isDone(curVid)?"Tandakan belum ditonton":"Tandakan telah ditonton"}
