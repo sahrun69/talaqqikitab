@@ -65,6 +65,27 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 .bk p{margin:4px 0 10px;font-size:.93rem}
 .bk .btn{margin-right:8px}
 #bkmsg{margin-top:8px;font-size:.93rem}
+.seg{display:none;gap:6px;margin:12px 0 0}
+.seg button{flex:1;font:inherit;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+#pdfBox{display:flex;flex-direction:column;overflow:hidden;margin-top:12px}
+.pdfbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.pdfbar a{font-weight:600;font-size:.93rem;color:var(--acc);border:1px solid var(--acc);padding:5px 10px;border-radius:8px;text-decoration:none;white-space:nowrap}
+#pdfFrame{flex:1;width:100%;border:0;min-height:70vh;background:#fff}
+#detail.nopdf #pdfBox{display:none}
+@media(max-width:979px){
+  #pdfBox{display:none}
+  #detail:not(.nopdf) .seg{display:flex}
+  #detail.tk:not(.nopdf) #pdfBox{display:flex}
+  #detail.tk:not(.nopdf) #now{display:none}
+}
+@media(min-width:980px){
+  #detail{max-width:1240px}
+  #detail.nopdf{max-width:760px}
+  #detail:not(.nopdf) .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+  #pdfBox{position:sticky;top:12px;height:calc(100vh - 24px);margin-top:0}
+  #pdfFrame{min-height:0}
+}
 </style>
 </head>
 <body>
@@ -87,10 +108,12 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   </div>
 </div>
 
-<div class="wrap" id="detail" hidden>
+<div class="wrap nopdf" id="detail" hidden>
   <button class="btn ghost" id="back">&larr; Semua kitab</button>
   <div id="dHead"></div>
+  <div class="cols"><div class="colL">
   <div id="player"></div>
+  <div class="seg" id="seg"><button data-t="nota" class="on">Nota</button><button data-t="kitab">Kitab</button></div>
   <div class="panel now" id="now" hidden>
       <h2 id="vTitle"></h2>
       <div class="row"><span id="vMeta"></span><button class="btn ghost" id="toggleBtn"></button></div>
@@ -100,13 +123,19 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   </div>
   <div class="tabs" id="tabs"></div>
   <div class="panel" id="vidList"></div>
+  </div>
+  <aside class="panel" id="pdfBox">
+    <div class="pdfbar"><b>Halaman kitab</b><a id="pdfOpen" target="_blank" rel="noopener">Buka dalam tab baharu</a></div>
+    <iframe id="pdfFrame" title="Halaman kitab PDF" src="about:blank"></iframe>
+  </aside>
+  </div>
 </div>
 
 <script>
 /* ============ TETAPAN ============
    Google Sheet: Fail > Kongsi > Terbit ke web > format CSV > Terbit, kemudian tampal pautan di bawah.
    Lajur (baris pertama = pengepala; hanya kitab, tajuk dan url wajib):
-   kategori | bahagian | kitab | keterangan | tajuk | url | guru
+   kategori | bahagian | kitab | keterangan | tajuk | url | guru | pdf (pautan Google Drive, pilihan)
    Jika dibiarkan kosong, data contoh digunakan. */
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQUWITs4aWEK12jYtkiEoRwrttWJCm2PImysa9vcVdSH89c2GE_svJ4dNsKtAWsUqPSmaDUnxPheoAz/pub?gid=0&single=true&output=csv";
 
@@ -157,9 +186,10 @@ async function load(){
     const id=ytId(g(r,"url")),name=g(r,"kitab");if(!id||!name)return;
     const k=map[name]||(map[name]={name,kat:g(r,"kategori")||"Umum",bah:g(r,"bahagian"),desc:"",vids:[]});
     if(!k.desc)k.desc=g(r,"keterangan");
+    if(!k.pdf)k.pdf=g(r,"pdf");
     const custom=g(r,"id");let key=custom?"id:"+custom:id+"@"+name;
     while(seen.has(key))key+="+";seen.add(key);
-    const v={id,title:g(r,"tajuk")||"Kuliah "+(k.vids.length+1),guru:g(r,"guru"),kitab:name,key};
+    const v={id,title:g(r,"tajuk")||"Kuliah "+(k.vids.length+1),guru:g(r,"guru"),pdf:g(r,"pdf"),kitab:name,key};
     k.vids.push(v);videos.push(v);
   });
   kitabList=Object.values(map);kitabList.forEach((k,i)=>k.idx=i);
@@ -212,6 +242,8 @@ function route(){
   if(k){curK=k;filter="all";$("home").hidden=true;$("detail").hidden=false}
   else{curK=null;$("home").hidden=false;$("detail").hidden=true}
   $("hdr").hidden=!!k;
+  $("detail").classList.remove("tk");[...$("seg").children].forEach((x,i)=>x.classList.toggle("on",!i));
+  updatePdf();
   refresh();scrollTo(0,0);
 }
 window.onhashchange=route;
@@ -246,7 +278,7 @@ function play(v){
   const make=()=>{yt=new YT.Player("yt",{videoId:v.id,playerVars:{start,rel:0},
     events:{onStateChange:e=>{if(e.data===0)setDone(v,true)}}});timer=setInterval(track,2000)};
   const wait=()=>{if(curVid!==v)return;apiReady?make():setTimeout(wait,400)};wait();
-  renderDetail();
+  renderDetail();updatePdf();
 }
 function track(){
   if(!yt||!yt.getDuration||!curVid)return;
@@ -258,6 +290,28 @@ function track(){
 }
 function setDone(v,val){if(val)store.w[v.key]=1;else delete store.w[v.key];save();updateToggle();refresh()}
 function updateToggle(){if(curVid)$("toggleBtn").textContent=isDone(curVid)?"Tandakan belum ditonton":"Tandakan telah ditonton"}
+
+/* ============ PDF KITAB (GOOGLE DRIVE) ============ */
+function driveId(u){u=(u||"").trim();if(/^[\w-]{25,}$/.test(u))return u;
+  const m=u.match(/\/d\/([\w-]{15,})/)||u.match(/[?&]id=([\w-]{15,})/);return m?m[1]:null}
+function pdfFor(){
+  const raw=(curVid&&curVid.pdf)||(curK&&curK.pdf);if(!raw)return null;
+  const id=driveId(raw);
+  if(id)return{embed:"https://drive.google.com/file/d/"+id+"/preview",open:"https://drive.google.com/file/d/"+id+"/view"};
+  return /^https?:\/\//.test(raw)?{embed:raw,open:raw}:null;
+}
+function updatePdf(){
+  const p=curK?pdfFor():null,f=$("pdfFrame");
+  $("detail").classList.toggle("nopdf",!p);
+  if(p){if(f.dataset.s!==p.embed){f.dataset.s=p.embed;f.src=p.embed}$("pdfOpen").href=p.open}
+  else if(f.dataset.s){f.dataset.s="";f.src="about:blank"}
+}
+$("seg").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;
+  $("detail").classList.toggle("tk",b.dataset.t==="kitab");
+  [...$("seg").children].forEach(x=>x.classList.toggle("on",x===b))};
+const mq=matchMedia("(min-width:980px)");
+function placePdf(){const b=$("pdfBox");if(mq.matches)document.querySelector(".cols").appendChild(b);else $("seg").after(b)}
+mq.addEventListener("change",placePdf);placePdf();
 
 /* ============ SANDARAN ============ */
 $("exp").onclick=()=>{
