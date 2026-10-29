@@ -58,6 +58,11 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 .vid.part .pl{stroke:var(--gold)}
 .vid.done .pl{fill:var(--ok);stroke:var(--ok)}
 .pc{font-weight:600}
+.bk{margin-top:34px;padding:16px;border:1px dashed var(--line);border-radius:10px}
+.bk h3{font-size:1.2rem}
+.bk p{margin:4px 0 10px;font-size:.93rem}
+.bk .btn{margin-right:8px}
+#bkmsg{margin-top:8px;font-size:.93rem}
 </style>
 </head>
 <body>
@@ -71,6 +76,13 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   <input id="q" type="search" placeholder="Cari kitab…" aria-label="Cari kitab" autocomplete="off">
   <div class="chips" id="cats"></div>
   <div id="groups"></div>
+  <div class="bk">
+    <h3>Sandaran nota dan progres</h3>
+    <p class="mut">Nota dan progres disimpan dalam pelayar ini sahaja. Eksport untuk menyimpan salinan atau memindahkannya ke peranti lain.</p>
+    <button class="btn ghost" id="exp">Eksport</button><button class="btn ghost" id="imp">Import</button>
+    <input type="file" id="impf" accept=".json,application/json" hidden>
+    <div id="bkmsg" class="mut" role="status"></div>
+  </div>
 </div>
 
 <div class="wrap" id="detail" hidden>
@@ -244,6 +256,31 @@ function track(){
 }
 function setDone(v,val){if(val)store.w[v.key]=1;else delete store.w[v.key];save();updateToggle();refresh()}
 function updateToggle(){if(curVid)$("toggleBtn").textContent=isDone(curVid)?"Tandakan belum ditonton":"Tandakan telah ditonton"}
+
+/* ============ SANDARAN ============ */
+$("exp").onclick=()=>{
+  const blob=new Blob([JSON.stringify({app:"pengajian-kitab",v:1,data:store})],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="sandaran-pengajian-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  $("bkmsg").textContent="Fail sandaran telah dimuat turun.";
+};
+$("imp").onclick=()=>$("impf").click();
+$("impf").onchange=async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{
+    const j=JSON.parse(await f.text()),d=j&&j.data;
+    if(!d||typeof d.w!=="object"||typeof d.n!=="object"||typeof d.p!=="object")throw 0;
+    Object.keys(d.w).forEach(k=>{if(d.w[k])store.w[k]=1});
+    Object.keys(d.p).forEach(k=>{const x=+d.p[k]||0;if(x>(store.p[k]||0))store.p[k]=x});
+    Object.keys(d.d||{}).forEach(k=>{if(!store.d[k])store.d[k]=+d.d[k]||0});
+    Object.keys(d.n).forEach(k=>{const t=String(d.n[k]||"");if(!t)return;const l=store.n[k];
+      if(!l)store.n[k]=t;else if(l!==t&&!l.includes(t))store.n[k]=l+"\n\n---\n"+t});
+    save();refresh();
+    $("bkmsg").textContent="Sandaran berjaya dimasukkan dan digabungkan dengan data sedia ada.";
+  }catch(err){$("bkmsg").textContent="Fail tidak sah. Pilih fail sandaran yang dimuat turun daripada laman ini."}
+};
 
 load();
 </script>
