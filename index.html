@@ -49,7 +49,26 @@ header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
 .vnav button{flex:1;font:inherit;font-size:.9rem;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 4px;border-radius:8px;cursor:pointer}
 .vnav #nResume{flex:1.4;background:var(--acc);color:#fff;border-color:var(--acc)}
 .vnav button:disabled{opacity:.4;cursor:default}
-#vidList{position:relative;max-height:55vh;overflow-y:auto}
+#focus{display:grid;gap:10px;margin-top:12px}
+.fc{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.fc:hover{border-color:var(--acc)}
+.fc.on{border-color:var(--acc);background:var(--sel)}
+.fc .lb{display:flex;justify-content:space-between;color:var(--mute);font-size:.85rem}
+.fc b{display:block;font-family:Amiri,Georgia,serif;font-size:1.2rem;line-height:1.3;margin-top:2px}
+.sheet{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center}
+.sheet.open{display:flex}
+.shbg{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.shp{position:relative;background:var(--panel);width:100%;max-width:640px;max-height:88vh;max-height:88dvh;overflow-y:auto;border-radius:16px 16px 0 0;padding:0 16px 18px}
+.shtop{position:sticky;top:0;z-index:2;background:var(--panel);padding:14px 0 10px}
+.shh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.shh b{font-family:Amiri,Georgia,serif;font-size:1.3rem}
+#sq{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;margin-top:4px}
+.cell{aspect-ratio:1;border:1px solid var(--line);background:var(--bg);color:var(--mute);border-radius:8px;font:inherit;font-size:.9rem;cursor:pointer}
+.cell.d{background:var(--ok);color:var(--panel);border-color:var(--ok)}
+.cell.p{border-color:var(--gold);color:var(--ink)}
+.cell.cur{outline:3px solid var(--gold);outline-offset:1px;font-weight:600}
+@media(min-width:980px){.sheet{align-items:center}.shp{border-radius:16px;max-height:80vh}}
 header[hidden]{display:none}
 #player iframe{width:100%;height:100%;border:0}
 .empty{display:grid;place-items:center;height:100%;color:#9ab;text-align:center;padding:20px}
@@ -66,7 +85,6 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 .vid.part .pl{stroke:var(--gold)}
 .vid.done .pl{fill:var(--ok);stroke:var(--ok)}
 .pc{font-weight:600}
-#grpBar:empty{display:none}
 .bk{margin-top:34px;padding:16px;border:1px dashed var(--line);border-radius:10px}
 .bk h3{font-size:1.2rem}
 .bk p{margin:4px 0 10px;font-size:.93rem}
@@ -88,8 +106,7 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   .seg{display:flex}
   #detail.nopdf .seg [data-t="kitab"]{display:none}
   #pdfBox,#now,#noNote{display:none}
-  #vidList{max-height:none;overflow:visible}
-  #detail:not([data-tab="kuliah"]) #vidList,#detail:not([data-tab="kuliah"]) #grpBar{display:none}
+  #detail:not([data-tab="kuliah"]) #focus{display:none}
   #detail[data-tab="nota"] #now:not([hidden]){display:block}
   #detail[data-tab="nota"] #now[hidden] ~ #noNote{display:block}
   #detail[data-tab="kitab"]:not(.nopdf) #pdfBox{display:flex}
@@ -131,6 +148,7 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
     <div class="vnav"><button type="button" id="nPrev">&larr; Sebelumnya</button><button type="button" id="nResume">Sambung tonton</button><button type="button" id="nNext">Seterusnya &rarr;</button></div>
   </div>
   <div class="seg" id="seg"><button data-t="kuliah" class="on">Kuliah</button><button data-t="nota">Nota</button><button data-t="kitab">Kitab</button></div>
+  <div id="focus"></div>
   <div class="panel now" id="now" hidden>
       <h2 id="vTitle"></h2>
       <div class="row"><span id="vMeta"></span><button class="btn ghost" id="toggleBtn"></button></div>
@@ -139,13 +157,23 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
       <small id="saved"></small>
   </div>
   <div class="none" id="noNote">Pilih satu kuliah dahulu untuk menulis nota.</div>
-  <div class="chips" id="grpBar"></div>
-  <div class="panel" id="vidList"></div>
   </div>
   <aside class="panel" id="pdfBox">
     <div class="pdfbar"><b>Halaman kitab</b><button class="btn ghost" id="pdfFull" type="button">Besarkan</button></div>
     <div class="pdfwrap"><iframe id="pdfFrame" title="Halaman kitab PDF" src="about:blank"></iframe><div class="shield"></div></div>
   </aside>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Semua kuliah">
+  <div class="shbg" id="shbg"></div>
+  <div class="shp">
+    <div class="shtop">
+      <div class="shh"><b>Semua kuliah</b><button class="btn ghost" id="shx" type="button">Tutup</button></div>
+      <input id="sq" type="search" placeholder="Cari kuliah…" aria-label="Cari kuliah" autocomplete="off">
+    </div>
+    <div id="map"></div>
+    <div id="shList"></div>
   </div>
 </div>
 
@@ -174,8 +202,7 @@ store.d = store.d || {};
 store.l = store.l || {};
 const save = () => localStorage.setItem(KEY, JSON.stringify(store));
 const $ = id => document.getElementById(id);
-const PER = 10, PAGED = 15;
-let grp = null, videos = [], kitabList = [], cat = "all", filter = "all", curK = null, curVid = null, yt = null, timer = null, apiReady = false;
+let videos = [], kitabList = [], cat = "all", filter = "all", curK = null, curVid = null, yt = null, timer = null, apiReady = false;
 
 /* ============ DATA ============ */
 function parseCSV(t){
@@ -240,24 +267,36 @@ function renderHome(){
     <small>${k.vids.length} kuliah, ${p}% selesai</small><div class="bar"><i style="width:${p}%"></i></div></button></div>`
   }).join("")+`</div>`).join("")||`<div class="none">Tiada kitab dijumpai. Cuba ejaan lain atau kategori lain.</div>`;
 }
-function renderDetail(sc){
-  const k=curK,n=k.vids.length,p=pct(k.vids),d=k.vids.filter(isDone).length;
-  const g0=k.vids[0].guru,same=k.vids.every(v=>v.guru===g0);
-  $("dHead").innerHTML=`<h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:2px 0 0">${esc(k.desc)}</p>`:""}${same&&g0?`<p class="mut" style="margin:2px 0 0">${esc(g0)}</p>`:""}
+const sameGuru=k=>k.vids.every(v=>v.guru===k.vids[0].guru);
+function renderDetail(){
+  const k=curK,n=k.vids.length,p=pct(k.vids),d=k.vids.filter(isDone).length,g0=k.vids[0].guru;
+  $("dHead").innerHTML=`<h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:2px 0 0">${esc(k.desc)}</p>`:""}${sameGuru(k)&&g0?`<p class="mut" style="margin:2px 0 0">${esc(g0)}</p>`:""}
     <div class="bar big"><i style="width:${p}%"></i></div><small>${d} daripada ${n} kuliah selesai, ${p}%</small>`;
-  const paged=n>PAGED;
-  if(paged&&grp==null){const t=curVid||resumeTarget(),ti=t?k.vids.indexOf(t):0;grp=Math.floor(Math.max(0,ti)/PER)}
-  const g=paged?grp:0;
-  $("grpBar").innerHTML=paged?Array.from({length:Math.ceil(n/PER)},(_,j)=>{const a=j*PER,b=Math.min(n,a+PER);
-    return `<button type="button" data-g="${j}" class="${j===g?"on":""}">${a+1}\u2013${b}${k.vids.slice(a,b).every(isDone)?" \u2713":""}</button>`}).join(""):"";
-  const list=k.vids.map((v,i)=>({v,i})).filter(x=>!paged||Math.floor(x.i/PER)===g);
-  $("vidList").innerHTML=list.map(({v,i})=>{const pc=vpct(v);
-    const sub=[!same&&v.guru,store.n[v.key]&&"ada nota"].filter(Boolean).join(", ");
-    return `<button class="vid ${isDone(v)?"done":pc>0?"part":""} ${curVid&&curVid.key===v.key?"on":""}" data-v="${v.key}">
-    <svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l13 7.5-13 7.5z"/></svg><span>${i+1}. ${esc(v.title)}${sub?`<br><small>${esc(sub)}</small>`:""}</span>
-    <small class="pc">${pc?pc+"%":""}</small></button>`}).join("")||`<div class="none">Tiada kuliah dalam senarai ini.</div>`;
-  renderNav();if(sc)scrollList(true);
+  renderFocus();renderNav();
+  if($("sheet").classList.contains("open"))renderSheet();
 }
+function renderFocus(){
+  const v=curK.vids,target=resumeTarget(),lec=curVid||target||v[0],i=v.indexOf(lec);
+  const any=v.some(x=>isDone(x)||(store.p[x.key]||0)>5);
+  const lb=curVid?"Sedang ditonton":target?(any?"Sambung dari sini":"Mula di sini"):"Semua selesai. Ulang dari awal";
+  const card=(x,label,on)=>{const pc=vpct(x),j=v.indexOf(x);
+    return `<button type="button" class="fc ${on?"on":""}" data-p="${x.key}"><span class="lb"><span>${label}</span><span>${pc?pc+"%":""}</span></span><b>${j+1}. ${esc(x.title)}</b>${pc?`<div class="bar"><i style="width:${pc}%"></i></div>`:""}</button>`};
+  const nx=v[i+1];
+  $("focus").innerHTML=card(lec,lb,!!curVid)+(nx?card(nx,"Seterusnya",false):"")
+    +`<button type="button" class="btn ghost" data-sheet>Semua kuliah (${v.length})</button>`;
+}
+function renderSheet(){
+  const v=curK.vids,q=norm($("sq").value),same=sameGuru(curK);
+  $("map").innerHTML=q?"":`<div class="map">`+v.map((x,i)=>`<button type="button" class="cell ${isDone(x)?"d":vpct(x)>0?"p":""} ${curVid&&curVid.key===x.key?"cur":""}" data-p="${x.key}" title="${esc(x.title)}" aria-label="Kuliah ${i+1}: ${esc(x.title)}">${i+1}</button>`).join("")+`</div>`;
+  const list=v.map((x,i)=>({x,i})).filter(o=>!q||norm((o.i+1)+" "+o.x.title).includes(q));
+  $("shList").innerHTML=list.length?`<div class="panel" style="margin-top:12px">`+list.map(({x,i})=>{const pc=vpct(x);
+    const sub=[!same&&x.guru,store.n[x.key]&&"ada nota"].filter(Boolean).join(", ");
+    return `<button type="button" class="vid ${isDone(x)?"done":pc>0?"part":""} ${curVid&&curVid.key===x.key?"on":""}" data-p="${x.key}">
+    <svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l13 7.5-13 7.5z"/></svg><span>${i+1}. ${esc(x.title)}${sub?`<br><small>${esc(sub)}</small>`:""}</span>
+    <small class="pc">${pc?pc+"%":""}</small></button>`}).join("")+`</div>`:`<div class="none">Tiada kuliah dijumpai. Cuba tajuk atau nombor lain.</div>`;
+}
+function openSheet(){$("sq").value="";renderSheet();$("sheet").classList.add("open");document.body.style.overflow="hidden"}
+function closeSheet(){if(!$("sheet").classList.contains("open"))return;$("sheet").classList.remove("open");document.body.style.overflow=""}
 function resumeTarget(){
   const v=curK.vids,li=v.findIndex(x=>x.key===store.l[curK.name]);
   if(li>=0){if(!isDone(v[li]))return v[li];const n=v.slice(li+1).find(x=>!isDone(x));if(n)return n}
@@ -269,41 +308,40 @@ function renderNav(){
   $("nPrev").disabled=i<=0;$("nNext").disabled=i<0||i>=v.length-1;
   $("nResume").textContent=t?(any?"Sambung tonton":"Mula tonton"):"Ulang dari awal";
 }
-function scrollList(page){
-  if(!curK)return;
-  const box=$("vidList");if(box.offsetParent===null)return;
-  let el=box.querySelector(".vid.on");
-  if(!el){const t=resumeTarget();if(t)el=[...box.children].find(x=>x.dataset.v===t.key)}
-  if(!el)return;
-  if(box.scrollHeight>box.clientHeight+2){box.scrollTop=Math.max(0,el.offsetTop-box.clientHeight/2+el.offsetHeight/2);return}
-  if(page){const r=el.getBoundingClientRect(),sh=$("stick").offsetHeight;
-    if(r.top<sh+4||r.bottom>innerHeight)scrollTo({top:scrollY+r.top-sh-8,behavior:"smooth"})}
-}
 function refresh(){renderRing();curK?renderDetail():renderHome()}
 
 /* ============ NAVIGASI ============ */
 function route(){
   const m=location.hash.match(/^#kitab-(\d+)$/),k=m&&kitabList[+m[1]];
   resetPlayer();
-  if(k){curK=k;grp=null;$("home").hidden=true;$("detail").hidden=false}
+  if(k){curK=k;$("home").hidden=true;$("detail").hidden=false}
   else{curK=null;$("home").hidden=false;$("detail").hidden=true}
-  setFull(false);
+  closeSheet();setFull(false);
   $("hdr").hidden=!!k;
   setTab("kuliah");
   updatePdf();
-  refresh();scrollTo(0,0);scrollList();
+  refresh();scrollTo(0,0);
 }
 window.onhashchange=route;
 $("back").onclick=()=>{location.hash=""};
 $("groups").onclick=e=>{const b=e.target.closest("[data-i]");if(b)location.hash="#kitab-"+b.dataset.i};
 $("cats").onclick=e=>{const b=e.target.closest("[data-c]");if(b){cat=b.dataset.c;renderHome()}};
 $("q").oninput=renderHome;
-$("vidList").onclick=e=>{const b=e.target.closest("[data-v]");if(b)play(curK.vids.find(v=>v.key===b.dataset.v))};
+$("focus").onclick=e=>{
+  if(e.target.closest("[data-sheet]")){openSheet();return}
+  const b=e.target.closest("[data-p]");if(!b)return;
+  const v=curK.vids.find(x=>x.key===b.dataset.p);if(v&&v!==curVid)play(v);
+};
+$("sheet").onclick=e=>{
+  if(e.target.id==="shbg"||e.target.closest("#shx")){closeSheet();return}
+  const b=e.target.closest("[data-p]");if(!b)return;
+  const v=curK.vids.find(x=>x.key===b.dataset.p);closeSheet();if(v&&v!==curVid)play(v);
+};
+$("sq").oninput=renderSheet;
 $("toggleBtn").onclick=()=>setDone(curVid,!isDone(curVid));
 $("nPrev").onclick=()=>{const i=curK.vids.indexOf(curVid);if(i>0)play(curK.vids[i-1])};
 $("nNext").onclick=()=>{const i=curK.vids.indexOf(curVid);if(i>=0&&i<curK.vids.length-1)play(curK.vids[i+1])};
 $("nResume").onclick=()=>play(resumeTarget()||curK.vids[0]);
-$("grpBar").onclick=e=>{const b=e.target.closest("[data-g]");if(b){grp=+b.dataset.g;renderDetail()}};
 let nt;$("note").oninput=()=>{if(!curVid)return;clearTimeout(nt);nt=setTimeout(()=>{
   const t=$("note").value.trim();if(t)store.n[curVid.key]=t;else delete store.n[curVid.key];
   save();$("saved").textContent="Nota disimpan.";renderDetail()},500)};
@@ -318,7 +356,7 @@ function resetPlayer(){
   $("player").innerHTML='<div class="empty">Pilih satu kuliah untuk mula belajar.</div>';
 }
 function play(v){
-  clearInterval(timer);curVid=v;$("now").hidden=false;store.l[curK.name]=v.key;save();grp=Math.floor(curK.vids.indexOf(v)/PER);
+  clearInterval(timer);curVid=v;$("now").hidden=false;store.l[curK.name]=v.key;save();
   $("vTitle").textContent=v.title;$("vMeta").textContent=v.guru||v.kitab;
   $("note").value=store.n[v.key]||"";$("saved").textContent="";updateToggle();
   if(yt&&yt.destroy){try{yt.destroy()}catch(e){}}
@@ -368,7 +406,7 @@ function setFull(on){
   $("pdfFull").textContent=on?"Tutup":"Besarkan";
 }
 $("pdfFull").onclick=()=>setFull(!$("pdfBox").classList.contains("full"));
-document.addEventListener("keydown",e=>{if(e.key==="Escape")setFull(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){setFull(false);closeSheet()}});
 const mq=matchMedia("(min-width:980px)");
 function placePdf(){const b=$("pdfBox");if(mq.matches)document.querySelector(".cols").appendChild(b);else $("seg").after(b)}
 mq.addEventListener("change",placePdf);placePdf();
