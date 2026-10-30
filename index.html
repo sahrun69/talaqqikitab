@@ -84,10 +84,14 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 .pdfbar .btn{padding:5px 12px;font-size:.93rem}
 #detail.nopdf #pdfBox{display:none}
 @media(max-width:979px){
-  #pdfBox{display:none}
-  #detail:not(.nopdf) .seg{display:flex}
-  #detail.tk:not(.nopdf) #pdfBox{display:flex}
-  #detail.tk:not(.nopdf) #now{display:none}
+  .seg{display:flex}
+  #detail.nopdf .seg [data-t="kitab"]{display:none}
+  #pdfBox,#now,#noNote{display:none}
+  #vidList{max-height:none;overflow:visible}
+  #detail:not([data-tab="kuliah"]) #vidList{display:none}
+  #detail[data-tab="nota"] #now:not([hidden]){display:block}
+  #detail[data-tab="nota"] #now[hidden] ~ #noNote{display:block}
+  #detail[data-tab="kitab"]:not(.nopdf) #pdfBox{display:flex}
 }
 @media(min-width:980px){
   #detail{max-width:1240px}
@@ -118,14 +122,14 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   </div>
 </div>
 
-<div class="wrap nopdf" id="detail" hidden>
+<div class="wrap nopdf" id="detail" data-tab="kuliah" hidden>
   <button class="btn ghost" id="back">&larr; Semua kitab</button>
   <div id="dHead"></div>
   <div class="cols"><div class="colL">
   <div id="stick"><div id="player"></div>
     <div class="vnav"><button type="button" id="nPrev">&larr; Sebelumnya</button><button type="button" id="nResume">Sambung tonton</button><button type="button" id="nNext">Seterusnya &rarr;</button></div>
   </div>
-  <div class="seg" id="seg"><button data-t="nota" class="on">Nota</button><button data-t="kitab">Kitab</button></div>
+  <div class="seg" id="seg"><button data-t="kuliah" class="on">Kuliah</button><button data-t="nota">Nota</button><button data-t="kitab">Kitab</button></div>
   <div class="panel now" id="now" hidden>
       <h2 id="vTitle"></h2>
       <div class="row"><span id="vMeta"></span><button class="btn ghost" id="toggleBtn"></button></div>
@@ -133,7 +137,7 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
       <textarea id="note" placeholder="Tulis faedah, soalan atau catatan di sini. Disimpan automatik."></textarea>
       <small id="saved"></small>
   </div>
-  <div class="tabs" id="tabs"></div>
+  <div class="none" id="noNote">Pilih satu kuliah dahulu untuk menulis nota.</div>
   <div class="panel" id="vidList"></div>
   </div>
   <aside class="panel" id="pdfBox">
@@ -237,15 +241,13 @@ function renderDetail(sc){
   const k=curK,p=pct(k.vids),d=k.vids.filter(isDone).length;
   $("dHead").innerHTML=`<h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:2px 0 0">${esc(k.desc)}</p>`:""}
     <div class="bar big"><i style="width:${p}%"></i></div><small>${d} daripada ${k.vids.length} kuliah selesai, ${p}%</small>`;
-  $("tabs").innerHTML=[["all","Semua"],["todo","Belum ditonton"],["done","Telah ditonton"]]
-    .map(([f,t])=>`<button data-f="${f}" class="${filter===f?"on":""}">${t}</button>`).join("");
-  const list=k.vids.map((v,i)=>({v,i})).filter(x=>filter==="all"||(filter==="done")===isDone(x.v));
+  const list=k.vids.map((v,i)=>({v,i}));
   $("vidList").innerHTML=list.length?list.map(({v,i})=>{const pc=vpct(v);
     return `<button class="vid ${isDone(v)?"done":pc>0?"part":""} ${curVid&&curVid.key===v.key?"on":""}" data-v="${v.key}">
     <svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l13 7.5-13 7.5z"/></svg><span>${i+1}. ${esc(v.title)}<br><small>${esc(v.guru)}${store.n[v.key]?(v.guru?", ":"")+"ada nota":""}</small></span>
     <small class="pc">${pc?pc+"%":""}</small></button>`}).join("")
     :`<div class="none">Tiada kuliah dalam senarai ini.</div>`;
-  renderNav();if(sc)scrollList();
+  renderNav();if(sc)scrollList(true);
 }
 function resumeTarget(){
   const v=curK.vids,li=v.findIndex(x=>x.key===store.l[curK.name]);
@@ -258,11 +260,15 @@ function renderNav(){
   $("nPrev").disabled=i<=0;$("nNext").disabled=i<0||i>=v.length-1;
   $("nResume").textContent=t?(any?"Sambung tonton":"Mula tonton"):"Ulang dari awal";
 }
-function scrollList(){
+function scrollList(page){
   if(!curK)return;
-  const box=$("vidList");let el=box.querySelector(".vid.on");
+  const box=$("vidList");if(box.offsetParent===null)return;
+  let el=box.querySelector(".vid.on");
   if(!el){const t=resumeTarget();if(t)el=[...box.children].find(x=>x.dataset.v===t.key)}
-  if(el)box.scrollTop=Math.max(0,el.offsetTop-box.clientHeight/2+el.offsetHeight/2);
+  if(!el)return;
+  if(box.scrollHeight>box.clientHeight+2){box.scrollTop=Math.max(0,el.offsetTop-box.clientHeight/2+el.offsetHeight/2);return}
+  if(page){const r=el.getBoundingClientRect(),sh=$("stick").offsetHeight;
+    if(r.top<sh+4||r.bottom>innerHeight)scrollTo({top:scrollY+r.top-sh-8,behavior:"smooth"})}
 }
 function refresh(){renderRing();curK?renderDetail():renderHome()}
 
@@ -274,7 +280,7 @@ function route(){
   else{curK=null;$("home").hidden=false;$("detail").hidden=true}
   setFull(false);
   $("hdr").hidden=!!k;
-  $("detail").classList.remove("tk");[...$("seg").children].forEach((x,i)=>x.classList.toggle("on",!i));
+  setTab("kuliah");
   updatePdf();
   refresh();scrollTo(0,0);scrollList();
 }
@@ -283,7 +289,6 @@ $("back").onclick=()=>{location.hash=""};
 $("groups").onclick=e=>{const b=e.target.closest("[data-i]");if(b)location.hash="#kitab-"+b.dataset.i};
 $("cats").onclick=e=>{const b=e.target.closest("[data-c]");if(b){cat=b.dataset.c;renderHome()}};
 $("q").oninput=renderHome;
-$("tabs").onclick=e=>{const b=e.target.closest("[data-f]");if(b){filter=b.dataset.f;renderDetail()}};
 $("vidList").onclick=e=>{const b=e.target.closest("[data-v]");if(b)play(curK.vids.find(v=>v.key===b.dataset.v))};
 $("toggleBtn").onclick=()=>setDone(curVid,!isDone(curVid));
 $("nPrev").onclick=()=>{const i=curK.vids.indexOf(curVid);if(i>0)play(curK.vids[i-1])};
@@ -338,12 +343,15 @@ function pdfFor(){
 function updatePdf(){
   const p=curK?pdfFor():null,f=$("pdfFrame");
   $("detail").classList.toggle("nopdf",!p);
+  if(!p&&$("detail").dataset.tab==="kitab")setTab("kuliah");
   if(p){if(f.dataset.s!==p.embed){f.dataset.s=p.embed;f.src=p.embed}}
   else if(f.dataset.s){f.dataset.s="";f.src="about:blank"}
 }
-$("seg").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;
-  $("detail").classList.toggle("tk",b.dataset.t==="kitab");
-  [...$("seg").children].forEach(x=>x.classList.toggle("on",x===b))};
+function setTab(t){
+  $("detail").dataset.tab=t;
+  [...$("seg").children].forEach(x=>x.classList.toggle("on",x.dataset.t===t));
+}
+$("seg").onclick=e=>{const b=e.target.closest("[data-t]");if(b)setTab(b.dataset.t)};
 function setFull(on){
   $("pdfBox").classList.toggle("full",on);
   document.body.style.overflow=on?"hidden":"";
