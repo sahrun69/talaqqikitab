@@ -63,11 +63,13 @@ header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
 .shh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .shh b{font-family:Amiri,Georgia,serif;font-size:1.3rem}
 #sq{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
-.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;margin-top:4px}
 .cell{aspect-ratio:1;border:1px solid var(--line);background:var(--bg);color:var(--mute);border-radius:8px;font:inherit;font-size:.9rem;cursor:pointer}
 .cell.d{background:var(--ok);color:var(--panel);border-color:var(--ok)}
 .cell.p{border-color:var(--gold);color:var(--ink)}
 .cell.cur{outline:3px solid var(--gold);outline-offset:1px;font-weight:600}
+.vid .cell,.fc .cell{display:flex;align-items:center;justify-content:center;width:36px;height:36px;aspect-ratio:auto;font-weight:600;flex:none;cursor:inherit}
+.fr{display:flex;gap:10px;align-items:center;margin-top:6px}
+.fr b{margin-top:0}
 @media(min-width:980px){.sheet{align-items:center}.shp{border-radius:16px;max-height:80vh}}
 header[hidden]{display:none}
 #player iframe{width:100%;height:100%;border:0}
@@ -78,12 +80,9 @@ header[hidden]{display:none}
 button.btn{font:inherit;font-weight:600;border:1px solid var(--acc);background:var(--acc);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer}
 button.btn.ghost{background:none;color:var(--acc)}
 textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;resize:vertical}
-.vid{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);color:inherit;font:inherit;padding:11px 14px;cursor:pointer}
+.vid{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);color:inherit;font:inherit;padding:11px 14px;cursor:pointer}
 .vid:first-child{border-top:0}
 .vid:hover,.vid.on{background:var(--sel)}
-.pl{width:22px;height:22px;fill:none;stroke:var(--mute);stroke-width:2;stroke-linejoin:round}
-.vid.part .pl{stroke:var(--gold)}
-.vid.done .pl{fill:var(--ok);stroke:var(--ok)}
 .pc{font-weight:600}
 .bk{margin-top:34px;padding:16px;border:1px dashed var(--line);border-radius:10px}
 .bk h3{font-size:1.2rem}
@@ -172,7 +171,6 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
       <div class="shh"><b>Semua kuliah</b><button class="btn ghost" id="shx" type="button">Tutup</button></div>
       <input id="sq" type="search" placeholder="Cari kuliah…" aria-label="Cari kuliah" autocomplete="off">
     </div>
-    <div id="map"></div>
     <div id="shList"></div>
   </div>
 </div>
@@ -268,6 +266,7 @@ function renderHome(){
   }).join("")+`</div>`).join("")||`<div class="none">Tiada kitab dijumpai. Cuba ejaan lain atau kategori lain.</div>`;
 }
 const sameGuru=k=>k.vids.every(v=>v.guru===k.vids[0].guru);
+const cellCls=x=>(isDone(x)?"d":vpct(x)>0?"p":"")+(curVid&&curVid.key===x.key?" cur":"");
 function renderDetail(){
   const k=curK,n=k.vids.length,p=pct(k.vids),d=k.vids.filter(isDone).length,g0=k.vids[0].guru;
   $("dHead").innerHTML=`<h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:2px 0 0">${esc(k.desc)}</p>`:""}${sameGuru(k)&&g0?`<p class="mut" style="margin:2px 0 0">${esc(g0)}</p>`:""}
@@ -280,19 +279,18 @@ function renderFocus(){
   const any=v.some(x=>isDone(x)||(store.p[x.key]||0)>5);
   const lb=curVid?"Sedang ditonton":target?(any?"Sambung dari sini":"Mula di sini"):"Semua selesai. Ulang dari awal";
   const card=(x,label,on)=>{const pc=vpct(x),j=v.indexOf(x);
-    return `<button type="button" class="fc ${on?"on":""}" data-p="${x.key}"><span class="lb"><span>${label}</span><span>${pc?pc+"%":""}</span></span><b>${j+1}. ${esc(x.title)}</b>${pc?`<div class="bar"><i style="width:${pc}%"></i></div>`:""}</button>`};
+    return `<button type="button" class="fc ${on?"on":""}" data-p="${x.key}"><span class="lb"><span>${label}</span><span>${pc?pc+"%":""}</span></span><span class="fr"><span class="cell ${cellCls(x)}">${j+1}</span><b>${esc(x.title)}</b></span>${pc?`<div class="bar"><i style="width:${pc}%"></i></div>`:""}</button>`};
   const nx=v[i+1];
   $("focus").innerHTML=card(lec,lb,!!curVid)+(nx?card(nx,"Seterusnya",false):"")
     +`<button type="button" class="btn ghost" data-sheet>Semua kuliah (${v.length})</button>`;
 }
 function renderSheet(){
   const v=curK.vids,q=norm($("sq").value),same=sameGuru(curK);
-  $("map").innerHTML=q?"":`<div class="map">`+v.map((x,i)=>`<button type="button" class="cell ${isDone(x)?"d":vpct(x)>0?"p":""} ${curVid&&curVid.key===x.key?"cur":""}" data-p="${x.key}" title="${esc(x.title)}" aria-label="Kuliah ${i+1}: ${esc(x.title)}">${i+1}</button>`).join("")+`</div>`;
   const list=v.map((x,i)=>({x,i})).filter(o=>!q||norm((o.i+1)+" "+o.x.title).includes(q));
-  $("shList").innerHTML=list.length?`<div class="panel" style="margin-top:12px">`+list.map(({x,i})=>{const pc=vpct(x);
+  $("shList").innerHTML=list.length?`<div class="panel" style="margin-top:4px">`+list.map(({x,i})=>{const pc=vpct(x);
     const sub=[!same&&x.guru,store.n[x.key]&&"ada nota"].filter(Boolean).join(", ");
-    return `<button type="button" class="vid ${isDone(x)?"done":pc>0?"part":""} ${curVid&&curVid.key===x.key?"on":""}" data-p="${x.key}">
-    <svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l13 7.5-13 7.5z"/></svg><span>${i+1}. ${esc(x.title)}${sub?`<br><small>${esc(sub)}</small>`:""}</span>
+    return `<button type="button" class="vid ${curVid&&curVid.key===x.key?"on":""}" data-p="${x.key}">
+    <span class="cell ${cellCls(x)}">${i+1}</span><span>${esc(x.title)}${sub?`<br><small>${esc(sub)}</small>`:""}</span>
     <small class="pc">${pc?pc+"%":""}</small></button>`}).join("")+`</div>`:`<div class="none">Tiada kuliah dijumpai. Cuba tajuk atau nombor lain.</div>`;
 }
 function openSheet(){$("sq").value="";renderSheet();$("sheet").classList.add("open");document.body.style.overflow="hidden"}
