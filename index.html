@@ -3,22 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f4d41">
+<meta name="theme-color" content="#0f3b33" media="(prefers-color-scheme: dark)">
 <title>Himpunan Pengajian Kitab</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lora:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap">
 <style>
-:root{--ft:Lora,Amiri,Georgia,serif;--bg:#f2f4f0;--panel:#fff;--ink:#1c2b2a;--mute:#6a7a77;--line:#dde3de;--acc:#0f5c4d;--gold:#b5832a;--ok:#0f5c4d;--sel:#e4efe9}
-@media (prefers-color-scheme:dark){:root{--bg:#121a19;--panel:#1a2524;--ink:#e6ede9;--mute:#93a4a0;--line:#2b3a38;--acc:#4fb89f;--gold:#d9a645;--ok:#4fb89f;--sel:#223430}}
+:root{--ft:Lora,Amiri,Georgia,serif;--bg:#f2f4f0;--panel:#fff;--ink:#1c2b2a;--mute:#6a7a77;--line:#dde3de;--acc:#0f5c4d;--gold:#b5832a;--ok:#0f5c4d;--sel:#e4efe9;--hd:#0f4d41;--hdt:#f3f8f5;--hdm:rgba(243,248,245,.74);--gold2:#e3b653}
+@media (prefers-color-scheme:dark){:root{--bg:#121a19;--panel:#1a2524;--ink:#e6ede9;--mute:#93a4a0;--line:#2b3a38;--acc:#4fb89f;--gold:#d9a645;--ok:#4fb89f;--sel:#223430;--hd:#0f3b33}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Source Sans 3",system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Source Sans 3",system-ui,sans-serif;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 h1,h2,h3{font-family:var(--ft);margin:0;font-weight:600;line-height:1.25}
 .mut,small{color:var(--mute)}
-header{display:flex;align-items:center;gap:20px;padding:20px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
+header{display:flex;align-items:center;gap:20px;padding:20px 24px;background:var(--hd);color:var(--hdt);border-bottom:3px solid var(--gold2)}
 header h1{font-size:1.55rem;line-height:1.2}
-header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
-.ring{--p:0;width:72px;height:72px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--p)*1%),var(--line) 0)}
-.ring span{width:58px;height:58px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-weight:600}
+header p{margin:2px 0 0;color:var(--hdm);font-size:.95rem}
+.ring{--p:0;width:72px;height:72px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold2) calc(var(--p)*1%),rgba(255,255,255,.22) 0)}
+.ring span{width:58px;height:58px;border-radius:50%;background:var(--hd);display:grid;place-items:center;font-weight:600}
 #msg{padding:10px 24px 0;color:var(--mute);font-size:.9rem}
-.wrap{max-width:760px;margin:auto;padding:18px 20px 60px}
+.wrap{max-width:760px;width:100%;margin:auto;padding:18px 20px 40px;flex:1 0 auto}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #q{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
 .chips,.tabs{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
@@ -41,6 +43,15 @@ header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
 .none{padding:20px;color:var(--mute);text-align:center}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
 #dHead{margin:14px 0}
+.banner{background:var(--hd);color:var(--hdt);border-radius:16px;padding:14px 18px 16px;margin-bottom:14px;border-bottom:3px solid var(--gold2)}
+.banner #back{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4);color:var(--hdt);padding:6px 12px;font-size:.92rem}
+.banner #dHead{margin:12px 0 0}
+.banner .mut,.banner small{color:var(--hdm)}
+.banner .bar{background:rgba(255,255,255,.22)}
+.banner .bar i{background:var(--gold2)}
+footer{background:var(--hd);color:var(--hdt);text-align:center;padding:22px 20px;border-top:3px solid var(--gold2)}
+footer b{font-family:var(--ft);font-weight:600;font-size:1.05rem}
+footer small{display:block;color:var(--hdm);margin-top:2px}
 #dHead h2{font-size:1.45rem}
 #player{aspect-ratio:16/9;background:#000;overflow:hidden;max-height:50vh;width:100%}
 #stick{border-radius:10px;overflow:hidden;background:var(--panel)}
@@ -148,8 +159,10 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 </div>
 
 <div class="wrap nopdf" id="detail" data-tab="kuliah" hidden>
-  <button class="btn ghost" id="back">&larr; Semua kitab</button>
-  <div id="dHead"></div>
+  <div class="banner">
+    <button class="btn ghost" id="back">&larr; Semua kitab</button>
+    <div id="dHead"></div>
+  </div>
   <div class="cols"><div class="colL">
   <div id="stick"><div id="player"></div>
     <div class="vnav">
@@ -177,6 +190,11 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   </aside>
   </div>
 </div>
+
+<footer id="ftr">
+  <b>Himpunan Pengajian Kitab</b>
+  <small>Progres dan nota disimpan dalam pelayar ini sahaja.</small>
+</footer>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Semua kuliah">
   <div class="shbg" id="shbg"></div>
