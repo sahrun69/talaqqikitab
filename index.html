@@ -83,17 +83,21 @@ header p{margin:4px 0 0;color:var(--hdm);font-size:.95rem}
 .eyebrow{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold2)}
 .ring{--p:0;width:68px;height:68px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold2) calc(var(--p)*1%),rgba(255,255,255,.22) 0)}
 .ring span{width:54px;height:54px;border-radius:50%;background:var(--hd);display:grid;place-items:center;font-weight:600}
-.hback{font:inherit;font-size:.9rem;color:var(--hdt);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 14px;cursor:pointer}
+.hin.sm{padding:12px 20px 14px}
+.hrow{display:flex;align-items:center;gap:12px}
+.hback{width:38px;height:38px;flex:none;display:flex;align-items:center;justify-content:center;padding:0;color:var(--hdt);background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:50%;cursor:pointer}
+.hback svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .hback:hover{background:rgba(255,255,255,.2)}
-#dHead{margin:14px 0 0}
-#dHead h2{font-size:1.6rem;margin-top:2px}
+#dHead{flex:1;min-width:0}
+#dHead h2{font-size:1.15rem;line-height:1.25;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#dHead .eyebrow{font-size:.68rem}
 .band .mut,.band small{color:var(--hdm)}
-.who{display:flex;align-items:center;gap:6px;margin:6px 0 0;color:var(--hdm);font-size:.95rem}
-.who svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.prog{display:flex;align-items:center;gap:12px;margin-top:16px}
-.prog .bar{flex:1;margin:0;background:rgba(255,255,255,.22)}
+.who{display:flex;align-items:center;gap:5px;margin:1px 0 0;color:var(--hdm);font-size:.85rem}
+.who svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.prog{display:flex;align-items:center;gap:12px;margin-top:10px}
+.prog .bar.big{flex:1;margin:0;height:6px;background:rgba(255,255,255,.22)}
 .prog .bar i{background:var(--gold2)}
-.prog .pn{font-weight:600;color:var(--gold2);min-width:2.6em;text-align:right}
+.prog .pn{font-weight:600;color:var(--gold2);font-size:.88rem;white-space:nowrap}
 @media(min-width:980px){#dHero:not(.nopdf) .hin{max-width:1240px}}
 footer{background:linear-gradient(135deg,var(--hd2),var(--hd));color:var(--hdt);text-align:center;padding:22px 20px;border-top:3px solid var(--gold2)}
 footer b{font-family:var(--ft);font-weight:600;font-size:1.05rem}
@@ -154,9 +158,12 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   </div>
 </header>
 <div id="dHero" class="band nopdf" hidden>
-  <div class="hin">
-    <button class="hback" id="back" type="button">&lsaquo; Semua kitab</button>
-    <div id="dHead"></div>
+  <div class="hin sm">
+    <div class="hrow">
+      <button class="hback" id="back" type="button" aria-label="Kembali ke semua kitab" title="Semua kitab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div id="dHead"></div>
+    </div>
+    <div class="prog" id="dProg"></div>
   </div>
 </div>
 <div id="msg"></div>
@@ -313,8 +320,9 @@ const sameGuru=k=>k.vids.every(v=>v.guru===k.vids[0].guru);
 const cellCls=x=>(isDone(x)?"d":vpct(x)>0?"p":"")+(curVid&&curVid.key===x.key?" cur":"");
 function renderDetail(){
   const k=curK,n=k.vids.length,p=pct(k.vids),d=k.vids.filter(isDone).length,g0=k.vids[0].guru;
-  $("dHead").innerHTML=`<div class="eyebrow">${esc(k.kat)}${k.bah?" \u00b7 "+esc(k.bah):""}</div><h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:4px 0 0">${esc(k.desc)}</p>`:""}${sameGuru(k)&&g0?`<p class="who"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>${esc(g0)}</p>`:""}
-    <div class="prog"><div class="bar big"><i style="width:${p}%"></i></div><span class="pn">${p}%</span></div><small>${d} daripada ${n} kuliah selesai</small>`;
+  const kt=[k.kat!=="Umum"?k.kat:"",k.bah].filter(Boolean).join(" \u00b7 ");
+  $("dHead").innerHTML=(kt?`<div class="eyebrow">${esc(kt)}</div>`:"")+`<h2>${esc(k.name)}</h2>`+(sameGuru(k)&&g0?`<p class="who"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>${esc(g0)}</p>`:"");
+  $("dProg").innerHTML=`<div class="bar big"><i style="width:${p}%"></i></div><span class="pn">${d}/${n} \u00b7 ${p}%</span>`;
   renderFocus();renderNav();
   if($("sheet").classList.contains("open"))renderSheet();
 }
