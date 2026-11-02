@@ -45,10 +45,16 @@ header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
 #player{aspect-ratio:16/9;background:#000;overflow:hidden;max-height:50vh;width:100%}
 #stick{border-radius:10px;overflow:hidden;background:var(--panel)}
 #stick.on{position:sticky;top:0;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.25)}
-.vnav{display:flex;gap:6px;padding:8px}
-.vnav button{flex:1;font:inherit;font-size:.9rem;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 4px;border-radius:8px;cursor:pointer}
-.vnav #nResume{flex:1.4;background:var(--acc);color:#fff;border-color:var(--acc)}
-.vnav button:disabled{opacity:.4;cursor:default}
+.vnav{display:flex;gap:10px;padding:10px;align-items:center}
+.vnav svg{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.vnav svg .f{fill:currentColor}
+.vnav button{font:inherit;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:14px;transition:transform .12s,background .15s}
+.vnav button:active:not(:disabled){transform:scale(.96)}
+.vnav .nb{width:52px;flex:none;background:var(--sel);color:var(--acc)}
+.vnav .nb:hover:not(:disabled){background:var(--line)}
+.vnav .np{flex:1;background:var(--acc);color:var(--panel);font-weight:600;font-size:1rem;padding:0 14px}
+.vnav .np:hover{filter:brightness(1.1)}
+.vnav button:disabled{opacity:.35;cursor:default}
 #focus{display:grid;gap:10px;margin-top:12px}
 .fc{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
 .fc:hover{border-color:var(--acc)}
@@ -144,7 +150,11 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   <div id="dHead"></div>
   <div class="cols"><div class="colL">
   <div id="stick"><div id="player"></div>
-    <div class="vnav"><button type="button" id="nPrev">&larr; Sebelumnya</button><button type="button" id="nResume">Sambung tonton</button><button type="button" id="nNext">Seterusnya &rarr;</button></div>
+    <div class="vnav">
+      <button type="button" class="nb" id="nPrev" aria-label="Kuliah sebelumnya" title="Kuliah sebelumnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 5v14"/><path class="f" d="M19 6v12l-9.5-6z"/></svg></button>
+      <button type="button" class="np" id="nResume"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M8 5.5v13l11-6.5z"/></svg><span id="nLbl">Sambung tonton</span></button>
+      <button type="button" class="nb" id="nNext" aria-label="Kuliah seterusnya" title="Kuliah seterusnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 5v14"/><path class="f" d="M5 6v12l9.5-6z"/></svg></button>
+    </div>
   </div>
   <div class="seg" id="seg"><button data-t="kuliah" class="on">Kuliah</button><button data-t="nota">Nota</button><button data-t="kitab">Kitab</button></div>
   <div id="focus"></div>
@@ -304,7 +314,7 @@ function renderNav(){
   const v=curK.vids,i=curVid?v.indexOf(curVid):-1,t=resumeTarget();
   const any=v.some(x=>isDone(x)||(store.p[x.key]||0)>5);
   $("nPrev").disabled=i<=0;$("nNext").disabled=i<0||i>=v.length-1;
-  $("nResume").textContent=t?(any?"Sambung tonton":"Mula tonton"):"Ulang dari awal";
+  $("nLbl").textContent=t?(any?"Sambung tonton":"Mula tonton"):"Ulang dari awal";
 }
 function refresh(){renderRing();curK?renderDetail():renderHome()}
 
