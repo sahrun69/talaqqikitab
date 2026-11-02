@@ -8,17 +8,12 @@
 <title>Himpunan Pengajian Kitab</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lora:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap">
 <style>
-:root{--ft:Lora,Amiri,Georgia,serif;--bg:#f2f4f0;--panel:#fff;--ink:#1c2b2a;--mute:#6a7a77;--line:#dde3de;--acc:#0f5c4d;--gold:#b5832a;--ok:#0f5c4d;--sel:#e4efe9;--hd:#0f4d41;--hdt:#f3f8f5;--hdm:rgba(243,248,245,.74);--gold2:#e3b653}
-@media (prefers-color-scheme:dark){:root{--bg:#121a19;--panel:#1a2524;--ink:#e6ede9;--mute:#93a4a0;--line:#2b3a38;--acc:#4fb89f;--gold:#d9a645;--ok:#4fb89f;--sel:#223430;--hd:#0f3b33}}
+:root{--ft:Lora,Amiri,Georgia,serif;--bg:#f2f4f0;--panel:#fff;--ink:#1c2b2a;--mute:#6a7a77;--line:#dde3de;--acc:#0f5c4d;--gold:#b5832a;--ok:#0f5c4d;--sel:#e4efe9;--hd:#0f4d41;--hd2:#0a3a31;--hd3:#146a58;--hdt:#f3f8f5;--hdm:rgba(243,248,245,.74);--gold2:#e3b653}
+@media (prefers-color-scheme:dark){:root{--bg:#121a19;--panel:#1a2524;--ink:#e6ede9;--mute:#93a4a0;--line:#2b3a38;--acc:#4fb89f;--gold:#d9a645;--ok:#4fb89f;--sel:#223430;--hd:#0f3b33;--hd2:#0a2b25;--hd3:#10483d}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Source Sans 3",system-ui,sans-serif;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 h1,h2,h3{font-family:var(--ft);margin:0;font-weight:600;line-height:1.25}
 .mut,small{color:var(--mute)}
-header{display:flex;align-items:center;gap:20px;padding:20px 24px;background:var(--hd);color:var(--hdt);border-bottom:3px solid var(--gold2)}
-header h1{font-size:1.55rem;line-height:1.2}
-header p{margin:2px 0 0;color:var(--hdm);font-size:.95rem}
-.ring{--p:0;width:72px;height:72px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold2) calc(var(--p)*1%),rgba(255,255,255,.22) 0)}
-.ring span{width:58px;height:58px;border-radius:50%;background:var(--hd);display:grid;place-items:center;font-weight:600}
 #msg{padding:10px 24px 0;color:var(--mute);font-size:.9rem}
 .wrap{max-width:760px;width:100%;margin:auto;padding:18px 20px 40px;flex:1 0 auto}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -42,17 +37,6 @@ header p{margin:2px 0 0;color:var(--hdm);font-size:.95rem}
 .bar.big{height:10px}
 .none{padding:20px;color:var(--mute);text-align:center}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
-#dHead{margin:14px 0}
-.banner{background:var(--hd);color:var(--hdt);border-radius:16px;padding:14px 18px 16px;margin-bottom:14px;border-bottom:3px solid var(--gold2)}
-.banner #back{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4);color:var(--hdt);padding:6px 12px;font-size:.92rem}
-.banner #dHead{margin:12px 0 0}
-.banner .mut,.banner small{color:var(--hdm)}
-.banner .bar{background:rgba(255,255,255,.22)}
-.banner .bar i{background:var(--gold2)}
-footer{background:var(--hd);color:var(--hdt);text-align:center;padding:22px 20px;border-top:3px solid var(--gold2)}
-footer b{font-family:var(--ft);font-weight:600;font-size:1.05rem}
-footer small{display:block;color:var(--hdm);margin-top:2px}
-#dHead h2{font-size:1.45rem}
 #player{aspect-ratio:16/9;background:#000;overflow:hidden;max-height:50vh;width:100%}
 #stick{border-radius:10px;overflow:hidden;background:var(--panel)}
 #stick.on{position:sticky;top:0;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.25)}
@@ -90,6 +74,30 @@ footer small{display:block;color:var(--hdm);margin-top:2px}
 .fr{display:flex;gap:10px;align-items:center;margin-top:6px}
 .fr b{margin-top:0}
 @media(min-width:980px){.sheet{align-items:center}.shp{border-radius:16px;max-height:80vh}}
+.band{position:relative;overflow:hidden;color:var(--hdt);background:linear-gradient(135deg,var(--hd2) 0%,var(--hd) 55%,var(--hd3) 100%);border-bottom:3px solid var(--gold2)}
+.band::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.08'%3E%3Crect x='12' y='12' width='32' height='32'/%3E%3Crect x='12' y='12' width='32' height='32' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E")}
+.hin{position:relative;max-width:760px;margin:auto;padding:22px 20px 24px}
+.hflex{display:flex;align-items:center;justify-content:space-between;gap:16px}
+header h1{font-size:1.6rem;line-height:1.2}
+header p{margin:4px 0 0;color:var(--hdm);font-size:.95rem}
+.eyebrow{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold2)}
+.ring{--p:0;width:68px;height:68px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold2) calc(var(--p)*1%),rgba(255,255,255,.22) 0)}
+.ring span{width:54px;height:54px;border-radius:50%;background:var(--hd);display:grid;place-items:center;font-weight:600}
+.hback{font:inherit;font-size:.9rem;color:var(--hdt);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 14px;cursor:pointer}
+.hback:hover{background:rgba(255,255,255,.2)}
+#dHead{margin:14px 0 0}
+#dHead h2{font-size:1.6rem;margin-top:2px}
+.band .mut,.band small{color:var(--hdm)}
+.who{display:flex;align-items:center;gap:6px;margin:6px 0 0;color:var(--hdm);font-size:.95rem}
+.who svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.prog{display:flex;align-items:center;gap:12px;margin-top:16px}
+.prog .bar{flex:1;margin:0;background:rgba(255,255,255,.22)}
+.prog .bar i{background:var(--gold2)}
+.prog .pn{font-weight:600;color:var(--gold2);min-width:2.6em;text-align:right}
+@media(min-width:980px){#dHero:not(.nopdf) .hin{max-width:1240px}}
+footer{background:linear-gradient(135deg,var(--hd2),var(--hd));color:var(--hdt);text-align:center;padding:22px 20px;border-top:3px solid var(--gold2)}
+footer b{font-family:var(--ft);font-weight:600;font-size:1.05rem}
+footer small{display:block;color:var(--hdm);margin-top:2px}
 header[hidden]{display:none}
 #player iframe{width:100%;height:100%;border:0}
 .empty{display:grid;place-items:center;height:100%;color:#9ab;text-align:center;padding:20px}
@@ -139,10 +147,18 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 </style>
 </head>
 <body>
-<header id="hdr">
-  <div class="ring" id="ring"><span id="ringTxt">0%</span></div>
-  <div><h1>Himpunan Pengajian Kitab</h1><p id="sumTxt">Memuatkan senarai…</p></div>
+<header id="hdr" class="band">
+  <div class="hin hflex">
+    <div><h1>Himpunan Pengajian Kitab</h1><p id="sumTxt">Memuatkan senarai…</p></div>
+    <div class="ring" id="ring"><span id="ringTxt">0%</span></div>
+  </div>
 </header>
+<div id="dHero" class="band nopdf" hidden>
+  <div class="hin">
+    <button class="hback" id="back" type="button">&lsaquo; Semua kitab</button>
+    <div id="dHead"></div>
+  </div>
+</div>
 <div id="msg"></div>
 
 <div class="wrap" id="home">
@@ -159,10 +175,6 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 </div>
 
 <div class="wrap nopdf" id="detail" data-tab="kuliah" hidden>
-  <div class="banner">
-    <button class="btn ghost" id="back">&larr; Semua kitab</button>
-    <div id="dHead"></div>
-  </div>
   <div class="cols"><div class="colL">
   <div id="stick"><div id="player"></div>
     <div class="vnav">
@@ -301,8 +313,8 @@ const sameGuru=k=>k.vids.every(v=>v.guru===k.vids[0].guru);
 const cellCls=x=>(isDone(x)?"d":vpct(x)>0?"p":"")+(curVid&&curVid.key===x.key?" cur":"");
 function renderDetail(){
   const k=curK,n=k.vids.length,p=pct(k.vids),d=k.vids.filter(isDone).length,g0=k.vids[0].guru;
-  $("dHead").innerHTML=`<h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:2px 0 0">${esc(k.desc)}</p>`:""}${sameGuru(k)&&g0?`<p class="mut" style="margin:2px 0 0">${esc(g0)}</p>`:""}
-    <div class="bar big"><i style="width:${p}%"></i></div><small>${d} daripada ${n} kuliah selesai, ${p}%</small>`;
+  $("dHead").innerHTML=`<div class="eyebrow">${esc(k.kat)}${k.bah?" \u00b7 "+esc(k.bah):""}</div><h2>${esc(k.name)}</h2>${k.desc?`<p class="mut" style="margin:4px 0 0">${esc(k.desc)}</p>`:""}${sameGuru(k)&&g0?`<p class="who"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>${esc(g0)}</p>`:""}
+    <div class="prog"><div class="bar big"><i style="width:${p}%"></i></div><span class="pn">${p}%</span></div><small>${d} daripada ${n} kuliah selesai</small>`;
   renderFocus();renderNav();
   if($("sheet").classList.contains("open"))renderSheet();
 }
@@ -349,7 +361,7 @@ function route(){
   if(k){curK=k;$("home").hidden=true;$("detail").hidden=false}
   else{curK=null;$("home").hidden=false;$("detail").hidden=true}
   closeSheet();setFull(false);
-  $("hdr").hidden=!!k;
+  $("hdr").hidden=!!k;$("dHero").hidden=!k;
   setTab("kuliah");
   updatePdf();
   refresh();scrollTo(0,0);
@@ -429,7 +441,7 @@ function pdfFor(){
 }
 function updatePdf(){
   const p=curK?pdfFor():null,f=$("pdfFrame");
-  $("detail").classList.toggle("nopdf",!p);
+  $("detail").classList.toggle("nopdf",!p);$("dHero").classList.toggle("nopdf",!p);
   if(!p&&$("detail").dataset.tab==="kitab")setTab("kuliah");
   if(p){if(f.dataset.s!==p.embed){f.dataset.s=p.embed;f.src=p.embed}}
   else if(f.dataset.s){f.dataset.s="";f.src="about:blank"}
