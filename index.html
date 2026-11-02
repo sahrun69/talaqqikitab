@@ -45,14 +45,16 @@ header p{margin:2px 0 0;color:var(--mute);font-size:.95rem}
 #player{aspect-ratio:16/9;background:#000;overflow:hidden;max-height:50vh;width:100%}
 #stick{border-radius:10px;overflow:hidden;background:var(--panel)}
 #stick.on{position:sticky;top:0;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.25)}
-.vnav{display:flex;gap:10px;padding:10px;align-items:center}
+.vnav{display:flex;gap:8px;padding:10px;align-items:center}
 .vnav svg{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .vnav svg .f{fill:currentColor}
 .vnav button{font:inherit;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:14px;transition:transform .12s,background .15s}
 .vnav button:active:not(:disabled){transform:scale(.96)}
-.vnav .nb{width:52px;flex:none;background:var(--sel);color:var(--acc)}
+.vnav .nb{width:44px;flex:none;background:var(--sel);color:var(--acc)}
 .vnav .nb:hover:not(:disabled){background:var(--line)}
-.vnav .np{flex:1;background:var(--acc);color:var(--panel);font-weight:600;font-size:1rem;padding:0 14px}
+.vnav .np{flex:1;min-width:0;background:var(--acc);color:var(--panel);font-weight:600;font-size:1rem;padding:0 12px;white-space:nowrap}
+.vnav svg text{font:700 7.4px "Source Sans 3",system-ui,sans-serif;fill:currentColor;stroke:none}
+@media(max-width:479px){.vnav .sfx{display:none}}
 .vnav .np:hover{filter:brightness(1.1)}
 .vnav button:disabled{opacity:.35;cursor:default}
 #focus{display:grid;gap:10px;margin-top:12px}
@@ -152,7 +154,9 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   <div id="stick"><div id="player"></div>
     <div class="vnav">
       <button type="button" class="nb" id="nPrev" aria-label="Kuliah sebelumnya" title="Kuliah sebelumnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 5v14"/><path class="f" d="M19 6v12l-9.5-6z"/></svg></button>
-      <button type="button" class="np" id="nResume"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M8 5.5v13l11-6.5z"/></svg><span id="nLbl">Sambung tonton</span></button>
+      <button type="button" class="nb" id="nBack" aria-label="Undur 10 saat" title="Undur 10 saat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.34 6.84A8 8 0 1 0 12 4.5"/><path d="M14.3 2.2L12 4.5l2.3 2.3"/><text x="12" y="15.4" text-anchor="middle">10</text></svg></button>
+      <button type="button" class="np" id="nResume"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M8 5.5v13l11-6.5z"/></svg><span><span id="nLbl">Sambung</span><span class="sfx" id="nSfx"> tonton</span></span></button>
+      <button type="button" class="nb" id="nFwd" aria-label="Maju 10 saat" title="Maju 10 saat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.66 6.84A8 8 0 1 1 12 4.5"/><path d="M9.7 2.2L12 4.5L9.7 6.8"/><text x="12" y="15.4" text-anchor="middle">10</text></svg></button>
       <button type="button" class="nb" id="nNext" aria-label="Kuliah seterusnya" title="Kuliah seterusnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 5v14"/><path class="f" d="M5 6v12l9.5-6z"/></svg></button>
     </div>
   </div>
@@ -314,7 +318,9 @@ function renderNav(){
   const v=curK.vids,i=curVid?v.indexOf(curVid):-1,t=resumeTarget();
   const any=v.some(x=>isDone(x)||(store.p[x.key]||0)>5);
   $("nPrev").disabled=i<=0;$("nNext").disabled=i<0||i>=v.length-1;
-  $("nLbl").textContent=t?(any?"Sambung tonton":"Mula tonton"):"Ulang dari awal";
+  const L=t?(any?["Sambung"," tonton"]:["Mula"," tonton"]):["Ulang"," dari awal"];
+  $("nLbl").textContent=L[0];$("nSfx").textContent=L[1];
+  $("nBack").disabled=$("nFwd").disabled=!curVid;
 }
 function refresh(){renderRing();curK?renderDetail():renderHome()}
 
@@ -350,6 +356,13 @@ $("toggleBtn").onclick=()=>setDone(curVid,!isDone(curVid));
 $("nPrev").onclick=()=>{const i=curK.vids.indexOf(curVid);if(i>0)play(curK.vids[i-1])};
 $("nNext").onclick=()=>{const i=curK.vids.indexOf(curVid);if(i>=0&&i<curK.vids.length-1)play(curK.vids[i+1])};
 $("nResume").onclick=()=>play(resumeTarget()||curK.vids[0]);
+function seekBy(sec){
+  if(!yt||!yt.getCurrentTime||!yt.seekTo)return;
+  const d=yt.getDuration?yt.getDuration():0,t=yt.getCurrentTime()+sec;
+  yt.seekTo(Math.max(0,d?Math.min(t,d-1):t),true);
+}
+$("nBack").onclick=()=>seekBy(-10);
+$("nFwd").onclick=()=>seekBy(10);
 let nt;$("note").oninput=()=>{if(!curVid)return;clearTimeout(nt);nt=setTimeout(()=>{
   const t=$("note").value.trim();if(t)store.n[curVid.key]=t;else delete store.n[curVid.key];
   save();$("saved").textContent="Nota disimpan.";renderDetail()},500)};
