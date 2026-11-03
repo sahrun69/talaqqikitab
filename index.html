@@ -21,16 +21,40 @@ h1,h2,h3{font-family:var(--ft);margin:0;font-weight:600;line-height:1.25}
 .chips,.tabs{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
 .chips button,.tabs button{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:5px 14px;border-radius:20px;cursor:pointer}
 .chips button.on,.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.gh{font-size:1.1rem;margin:22px 0 10px;color:var(--gold)}
-.item{display:grid;grid-template-columns:44px 1fr;gap:14px;position:relative;padding-bottom:14px}
-.item::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.gh{font-size:1.1rem;margin:18px 0 8px;color:var(--gold)}
+.item{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;position:relative;padding-bottom:8px}
+.item::before{content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;background:var(--line)}
 .item:last-child::before{display:none}
-.num{width:44px;height:44px;border-radius:50%;border:2px solid var(--line);background:var(--panel);display:grid;place-items:center;font-weight:600;color:var(--mute)}
+.num{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--panel);display:grid;place-items:center;font-weight:600;font-size:.9rem;color:var(--mute)}
 .num.full{background:var(--ok);border-color:var(--ok);color:#fff}
-.card{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.card{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;min-width:0}
 .card:hover{border-color:var(--acc)}
-.card b{display:block;font-family:var(--ft);font-weight:600;font-size:1.02rem;line-height:1.35}
-.card span{display:block;color:var(--mute);font-size:.93rem}
+.card b{display:block;font-family:var(--ft);font-weight:600;font-size:1rem;line-height:1.3}
+.card>span{display:block;color:var(--mute);font-size:.88rem}
+.card>span.ds{margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card>span.hit{color:var(--acc);font-weight:600;margin-top:4px}
+.gu{display:flex;align-items:center;gap:6px;margin-top:5px;color:var(--mute);font-size:.86rem;min-width:0}
+.gn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.card .av{width:22px;height:22px;font-size:.6rem}
+.cp{display:flex;align-items:center;gap:10px;margin-top:8px}
+.cp .bar{flex:1;margin:0;height:5px}
+.cp>span{font-size:.82rem;font-weight:600;color:var(--mute);text-align:right;white-space:nowrap}
+.av{--h:160;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex:none;background:hsl(var(--h) 45% 90%);color:hsl(var(--h) 55% 26%)}
+.av svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(prefers-color-scheme:dark){.av{background:hsl(var(--h) 28% 26%);color:hsl(var(--h) 60% 80%)}}
+.vid .av{width:34px;height:34px;font-size:.78rem}
+.gb{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gb svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;margin-right:5px}
+#resume{margin-bottom:14px}
+#resume:empty{display:none}
+.rs{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--acc);border-radius:14px;padding:12px 14px;cursor:pointer}
+.rs:hover{background:var(--sel)}
+.rt{flex:1;min-width:0}
+.rt small{display:block;color:var(--acc);font-weight:600;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+.rt .rn{display:block;color:var(--mute);font-size:.88rem;margin-top:2px}
+.rt b{display:block;font-family:var(--ft);font-weight:600;font-size:1.02rem;line-height:1.35}
+.rp{width:42px;height:42px;border-radius:50%;background:var(--acc);color:var(--panel);display:flex;align-items:center;justify-content:center;flex:none}
+.rp svg{width:20px;height:20px;fill:currentColor}
 .card small{display:block;margin-top:4px;font-weight:600}
 .bar{height:6px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
@@ -65,7 +89,7 @@ h1,h2,h3{font-family:var(--ft);margin:0;font-weight:600;line-height:1.25}
 .shtop{position:sticky;top:0;z-index:2;background:var(--panel);padding:14px 0 10px}
 .shh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .shh b{font-family:var(--ft);font-weight:600;font-size:1.15rem}
-#sq{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+#sq,#gq{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
 .cell{aspect-ratio:1;border:1px solid var(--line);background:var(--bg);color:var(--mute);border-radius:8px;font:inherit;font-size:.9rem;cursor:pointer}
 .cell.d{background:var(--ok);color:var(--panel);border-color:var(--ok)}
 .cell.p{border-color:var(--gold);color:var(--ink)}
@@ -169,7 +193,8 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
 <div id="msg"></div>
 
 <div class="wrap" id="home">
-  <input id="q" type="search" placeholder="Cari kitab…" aria-label="Cari kitab" autocomplete="off">
+  <div id="resume"></div>
+  <input id="q" type="search" placeholder="Cari kitab, ustaz atau kuliah…" aria-label="Cari kitab, ustaz atau kuliah" autocomplete="off">
   <div class="chips" id="cats"></div>
   <div id="groups"></div>
   <div class="bk">
@@ -226,6 +251,17 @@ textarea{width:100%;min-height:130px;margin-top:8px;padding:12px;border:1px soli
   </div>
 </div>
 
+<div class="sheet" id="gsheet" role="dialog" aria-modal="true" aria-label="Penyampai">
+  <div class="shbg" id="gbg"></div>
+  <div class="shp">
+    <div class="shtop">
+      <div class="shh"><b>Penyampai</b><button class="btn ghost" id="gx" type="button">Tutup</button></div>
+      <input id="gq" type="search" placeholder="Cari penyampai…" aria-label="Cari penyampai" autocomplete="off">
+    </div>
+    <div id="gList"></div>
+  </div>
+</div>
+
 <script>
 /* ============ TETAPAN ============
    Google Sheet: Fail > Kongsi > Terbit ke web > format CSV > Terbit, kemudian tampal pautan di bawah.
@@ -251,7 +287,7 @@ store.d = store.d || {};
 store.l = store.l || {};
 const save = () => localStorage.setItem(KEY, JSON.stringify(store));
 const $ = id => document.getElementById(id);
-let videos = [], kitabList = [], cat = "all", filter = "all", curK = null, curVid = null, yt = null, timer = null, apiReady = false;
+let pend = null, guruSel = "", videos = [], kitabList = [], cat = "all", filter = "all", curK = null, curVid = null, yt = null, timer = null, apiReady = false;
 
 /* ============ DATA ============ */
 function parseCSV(t){
@@ -288,7 +324,7 @@ async function load(){
     const v={id,title:g(r,"tajuk")||"Kuliah "+(k.vids.length+1),guru:g(r,"guru"),pdf:g(r,"pdf"),kitab:name,key};
     k.vids.push(v);videos.push(v);
   });
-  kitabList=Object.values(map);kitabList.forEach((k,i)=>k.idx=i);
+  kitabList=Object.values(map);kitabList.forEach((k,i)=>{k.idx=i;k.gurus=[...new Set(k.vids.map(v=>v.guru).filter(Boolean))]});
   route();
 }
 
@@ -302,20 +338,48 @@ function renderRing(){
   $("ring").style.setProperty("--p",p);$("ringTxt").textContent=p+"%";
   $("sumTxt").textContent=`${d} daripada ${videos.length} kuliah selesai, merentasi ${kitabList.length} kitab`;
 }
+const SKIP=/^(ustaz|ustazah|dr\.?|dato'?|datuk|syeikh|sheikh|habib|tuan|guru|prof\.?|haji|hj\.?|kiai|al-?)$/i;
+function inisial(n){const w=n.split(/\s+/).filter(x=>x&&!SKIP.test(x)),a=w.length?w:n.split(/\s+/);return(a[0][0]+(a[1]?a[1][0]:(a[0][1]||""))).toUpperCase()}
+function avatar(n){let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%997;return `<span class="av" style="--h:${[160,200,260,30,330,90][h%6]}">${esc(inisial(n))}</span>`}
+function renderResume(){
+  const k=kitabList.find(x=>x.name===store.last),t=k&&resumeFor(k);
+  if(!t){$("resume").innerHTML="";return}
+  const pc=vpct(t);
+  $("resume").innerHTML=`<button type="button" class="rs" data-i="${k.idx}" data-pv="${esc(t.key)}"><span class="rt"><small>Sambung belajar</small><span class="rn">${esc(k.name)}</span><b>${k.vids.indexOf(t)+1}. ${esc(t.title)}</b>${pc?`<div class="bar"><i style="width:${pc}%"></i></div>`:""}</span><span class="rp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>`;
+}
 function renderHome(){
   const cats=[...new Set(kitabList.map(k=>k.kat))];
-  $("cats").innerHTML=["all",...cats].map(c=>`<button data-c="${esc(c)}" class="${cat===c?"on":""}">${c==="all"?"Semua":esc(c)}</button>`).join("");
-  const q=norm($("q").value);
-  const list=kitabList.filter(k=>(cat==="all"||k.kat===cat)&&(!q||norm(k.name+" "+k.desc).includes(q)));
+  $("cats").innerHTML=["all",...cats].map(c=>`<button data-c="${esc(c)}" class="${cat===c?"on":""}">${c==="all"?"Semua":esc(c)}</button>`).join("")
+    +(kitabList.some(k=>k.gurus.length)?`<button type="button" data-gopen class="gb ${guruSel?"on":""}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>${guruSel?esc(guruSel):"Penyampai"}</button>`:"");
+  renderResume();
+  const q=norm($("q").value),rows=[];
+  kitabList.forEach(k=>{
+    if(cat!=="all"&&k.kat!==cat)return;
+    if(guruSel&&!k.gurus.includes(guruSel))return;
+    let hit=null;
+    if(q&&!norm(k.name+" "+k.desc+" "+k.gurus.join(" ")).includes(q)){hit=k.vids.find(v=>norm(v.title).includes(q));if(!hit)return}
+    rows.push({k,hit});
+  });
   const groups={};
-  list.forEach(k=>{const h=cat==="all"?k.kat+(k.bah?": "+k.bah:""):(k.bah||k.kat);(groups[h]=groups[h]||[]).push(k)});
-  $("groups").innerHTML=Object.keys(groups).map(h=>`<h2 class="gh">${esc(h)}</h2><div>`+groups[h].map((k,i)=>{
+  rows.forEach(r=>{const k=r.k,h=cat==="all"?k.kat+(k.bah?": "+k.bah:""):(k.bah||k.kat);(groups[h]=groups[h]||[]).push(r)});
+  $("groups").innerHTML=Object.keys(groups).map(h=>`<h2 class="gh">${esc(h)}</h2><div>`+groups[h].map(({k,hit},i)=>{
     const p=pct(k.vids),full=p===100&&k.vids.length>0;
-    return `<div class="item"><span class="num ${full?"full":""}">${full?"✓":i+1}</span>
-    <button class="card" data-i="${k.idx}"><b>${esc(k.name)}</b>${k.desc?`<span>${esc(k.desc)}</span>`:""}
-    <small>${k.vids.length} kuliah, ${p}% selesai</small><div class="bar"><i style="width:${p}%"></i></div></button></div>`
-  }).join("")+`</div>`).join("")||`<div class="none">Tiada kitab dijumpai. Cuba ejaan lain atau kategori lain.</div>`;
+    return `<div class="item"><span class="num ${full?"full":""}">${full?"\u2713":i+1}</span>
+    <button class="card" data-i="${k.idx}"${hit?` data-pv="${esc(hit.key)}"`:""}><b>${esc(k.name)}</b>${k.desc?`<span class="ds">${esc(k.desc)}</span>`:""}${k.gurus.length?`<div class="gu">${avatar(k.gurus[0])}<span class="gn">${esc(k.gurus[0])}${k.gurus.length>1?" +"+(k.gurus.length-1):""}</span></div>`:""}${hit?`<span class="hit">Kuliah ${k.vids.indexOf(hit)+1}: ${esc(hit.title)}</span>`:""}
+    <div class="cp"><div class="bar"><i style="width:${p}%"></i></div><span>${k.vids.length} kuliah \u00b7 ${full?"Selesai":p+"%"}</span></div></button></div>`
+  }).join("")+`</div>`).join("")||`<div class="none">Tiada kitab dijumpai. Cuba ejaan lain, kategori lain atau penyampai lain.</div>`;
 }
+function renderG(){
+  const q=norm($("gq").value),m={};
+  kitabList.forEach(k=>k.gurus.forEach(g=>m[g]=(m[g]||0)+1));
+  const all=Object.keys(m).sort((a,b)=>a.localeCompare(b,"ms")).filter(g=>!q||norm(g).includes(q));
+  const row=(g,label,n,on,av)=>`<button type="button" class="vid ${on?"on":""}" data-g="${esc(g)}">${av}<span>${esc(label)}</span><small class="pc">${n} kitab${on?" \u2713":""}</small></button>`;
+  const grp='<span class="av"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.8"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M15 14.3c.7-.2 1.3-.3 2-.3 3 0 4.8 1.8 4.8 5"/></svg></span>';
+  $("gList").innerHTML=`<div class="panel" style="margin-top:4px">`+(q?"":row("","Semua penyampai",kitabList.length,!guruSel,grp))
+    +all.map(g=>row(g,g,m[g],g===guruSel,avatar(g))).join("")+`</div>`+(all.length||!q?"":`<div class="none">Tiada penyampai dijumpai.</div>`);
+}
+function openG(){$("gq").value="";renderG();$("gsheet").classList.add("open");document.body.style.overflow="hidden"}
+function closeG(){if(!$("gsheet").classList.contains("open"))return;$("gsheet").classList.remove("open");document.body.style.overflow=""}
 const sameGuru=k=>k.vids.every(v=>v.guru===k.vids[0].guru);
 const cellCls=x=>(isDone(x)?"d":vpct(x)>0?"p":"")+(curVid&&curVid.key===x.key?" cur":"");
 function renderDetail(){
@@ -347,11 +411,12 @@ function renderSheet(){
 }
 function openSheet(){$("sq").value="";renderSheet();$("sheet").classList.add("open");document.body.style.overflow="hidden"}
 function closeSheet(){if(!$("sheet").classList.contains("open"))return;$("sheet").classList.remove("open");document.body.style.overflow=""}
-function resumeTarget(){
-  const v=curK.vids,li=v.findIndex(x=>x.key===store.l[curK.name]);
+function resumeFor(k){
+  const v=k.vids,li=v.findIndex(x=>x.key===store.l[k.name]);
   if(li>=0){if(!isDone(v[li]))return v[li];const n=v.slice(li+1).find(x=>!isDone(x));if(n)return n}
   return v.find(x=>!isDone(x))||null;
 }
+function resumeTarget(){return resumeFor(curK)}
 function renderNav(){
   const v=curK.vids,i=curVid?v.indexOf(curVid):-1,t=resumeTarget();
   const any=v.some(x=>isDone(x)||(store.p[x.key]||0)>5);
@@ -368,16 +433,26 @@ function route(){
   resetPlayer();
   if(k){curK=k;$("home").hidden=true;$("detail").hidden=false}
   else{curK=null;$("home").hidden=false;$("detail").hidden=true}
-  closeSheet();setFull(false);
+  closeSheet();closeG();setFull(false);
   $("hdr").hidden=!!k;$("dHero").hidden=!k;
   setTab("kuliah");
   updatePdf();
   refresh();scrollTo(0,0);
+  if(k&&pend){const v=k.vids.find(x=>x.key===pend);pend=null;if(v)play(v)}else pend=null;
 }
 window.onhashchange=route;
 $("back").onclick=()=>{location.hash=""};
-$("groups").onclick=e=>{const b=e.target.closest("[data-i]");if(b)location.hash="#kitab-"+b.dataset.i};
-$("cats").onclick=e=>{const b=e.target.closest("[data-c]");if(b){cat=b.dataset.c;renderHome()}};
+$("home").onclick=e=>{const b=e.target.closest("[data-i]");if(b){pend=b.dataset.pv||null;location.hash="#kitab-"+b.dataset.i}};
+$("cats").onclick=e=>{
+  if(e.target.closest("[data-gopen]")){openG();return}
+  const b=e.target.closest("[data-c]");if(b){cat=b.dataset.c;renderHome()}
+};
+$("gsheet").onclick=e=>{
+  if(e.target.id==="gbg"||e.target.closest("#gx")){closeG();return}
+  const b=e.target.closest("[data-g]");if(!b)return;
+  guruSel=b.dataset.g;closeG();renderHome();
+};
+$("gq").oninput=renderG;
 $("q").oninput=renderHome;
 $("focus").onclick=e=>{
   if(e.target.closest("[data-sheet]")){openSheet();return}
@@ -415,7 +490,7 @@ function resetPlayer(){
   $("player").innerHTML='<div class="empty">Pilih satu kuliah untuk mula belajar.</div>';
 }
 function play(v){
-  clearInterval(timer);curVid=v;$("now").hidden=false;store.l[curK.name]=v.key;save();
+  clearInterval(timer);curVid=v;$("now").hidden=false;store.l[curK.name]=v.key;store.last=curK.name;save();
   $("vTitle").textContent=v.title;$("vMeta").textContent=v.guru||v.kitab;
   $("note").value=store.n[v.key]||"";$("saved").textContent="";updateToggle();
   if(yt&&yt.destroy){try{yt.destroy()}catch(e){}}
@@ -465,7 +540,7 @@ function setFull(on){
   $("pdfFull").textContent=on?"Tutup":"Besarkan";
 }
 $("pdfFull").onclick=()=>setFull(!$("pdfBox").classList.contains("full"));
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){setFull(false);closeSheet()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){setFull(false);closeSheet();closeG()}});
 const mq=matchMedia("(min-width:980px)");
 function placePdf(){const b=$("pdfBox");if(mq.matches)document.querySelector(".cols").appendChild(b);else $("seg").after(b)}
 mq.addEventListener("change",placePdf);placePdf();
@@ -488,6 +563,8 @@ $("impf").onchange=async e=>{
     Object.keys(d.w).forEach(k=>{if(d.w[k])store.w[k]=1});
     Object.keys(d.p).forEach(k=>{const x=+d.p[k]||0;if(x>(store.p[k]||0))store.p[k]=x});
     Object.keys(d.d||{}).forEach(k=>{if(!store.d[k])store.d[k]=+d.d[k]||0});
+    Object.keys(d.l||{}).forEach(k=>{if(!store.l[k])store.l[k]=d.l[k]});
+    if(!store.last&&d.last)store.last=d.last;
     Object.keys(d.n).forEach(k=>{const t=String(d.n[k]||"");if(!t)return;const l=store.n[k];
       if(!l)store.n[k]=t;else if(l!==t&&!l.includes(t))store.n[k]=l+"\n\n---\n"+t});
     save();refresh();
