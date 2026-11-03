@@ -313,18 +313,22 @@ async function load(){
   } else $("msg").textContent="Mod contoh: tampal pautan CSV Google Sheet anda dalam SHEET_CSV_URL.";
   const rows=parseCSV(text), head=rows.shift().map(h=>h.trim().toLowerCase());
   const g=(r,n)=>{const i=head.indexOf(n);return i<0?"":(r[i]||"").trim()};
-  const map={},seen=new Set();
+  const map={},seen=new Set(),lastG={};
   rows.forEach(r=>{
     const id=ytId(g(r,"url")),name=g(r,"kitab");if(!id||!name)return;
-    const k=map[name]||(map[name]={name,kat:g(r,"kategori")||"Umum",bah:g(r,"bahagian"),desc:"",vids:[]});
+    const gr=g(r,"guru")||lastG[name]||"";lastG[name]=gr;
+    const gk=name+"\u0001"+gr;
+    const k=map[gk]||(map[gk]={name,guru0:gr,kat:g(r,"kategori")||"Umum",bah:g(r,"bahagian"),desc:"",vids:[]});
     if(!k.desc)k.desc=g(r,"keterangan");
     if(!k.pdf)k.pdf=g(r,"pdf");
     const custom=g(r,"id");let key=custom?"id:"+custom:id+"@"+name;
     while(seen.has(key))key+="+";seen.add(key);
-    const v={id,title:g(r,"tajuk")||"Kuliah "+(k.vids.length+1),guru:g(r,"guru"),pdf:g(r,"pdf"),kitab:name,key};
+    const v={id,title:g(r,"tajuk")||"Kuliah "+(k.vids.length+1),guru:gr,pdf:g(r,"pdf"),kitab:name,key};
     k.vids.push(v);videos.push(v);
   });
-  kitabList=Object.values(map);kitabList.forEach((k,i)=>{k.idx=i;k.gurus=[...new Set(k.vids.map(v=>v.guru).filter(Boolean))]});
+  kitabList=Object.values(map);
+  const cnt={};kitabList.forEach(k=>cnt[k.name]=(cnt[k.name]||0)+1);
+  kitabList.forEach((k,i)=>{k.idx=i;k.gurus=[...new Set(k.vids.map(v=>v.guru).filter(Boolean))];k.dup=cnt[k.name]>1;k.sid=k.dup?k.name+" \u00b7 "+k.guru0:k.name});
   route();
 }
 
@@ -342,10 +346,10 @@ const SKIP=/^(ustaz|ustazah|dr\.?|dato'?|datuk|syeikh|sheikh|habib|tuan|guru|pro
 function inisial(n){const w=n.split(/\s+/).filter(x=>x&&!SKIP.test(x)),a=w.length?w:n.split(/\s+/);return(a[0][0]+(a[1]?a[1][0]:(a[0][1]||""))).toUpperCase()}
 function avatar(n){let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%997;return `<span class="av" style="--h:${[160,200,260,30,330,90][h%6]}">${esc(inisial(n))}</span>`}
 function renderResume(){
-  const k=kitabList.find(x=>x.name===store.last),t=k&&resumeFor(k);
+  const k=kitabList.find(x=>x.sid===store.last),t=k&&resumeFor(k);
   if(!t){$("resume").innerHTML="";return}
   const pc=vpct(t);
-  $("resume").innerHTML=`<button type="button" class="rs" data-i="${k.idx}" data-pv="${esc(t.key)}"><span class="rt"><small>Sambung belajar</small><span class="rn">${esc(k.name)}</span><b>${k.vids.indexOf(t)+1}. ${esc(t.title)}</b>${pc?`<div class="bar"><i style="width:${pc}%"></i></div>`:""}</span><span class="rp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>`;
+  $("resume").innerHTML=`<button type="button" class="rs" data-i="${k.idx}" data-pv="${esc(t.key)}"><span class="rt"><small>Sambung belajar</small><span class="rn">${esc(k.name)}${k.dup&&k.guru0?" \u00b7 "+esc(k.guru0):""}</span><b>${k.vids.indexOf(t)+1}. ${esc(t.title)}</b>${pc?`<div class="bar"><i style="width:${pc}%"></i></div>`:""}</span><span class="rp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>`;
 }
 function renderHome(){
   const cats=[...new Set(kitabList.map(k=>k.kat))];
@@ -412,7 +416,7 @@ function renderSheet(){
 function openSheet(){$("sq").value="";renderSheet();$("sheet").classList.add("open");document.body.style.overflow="hidden"}
 function closeSheet(){if(!$("sheet").classList.contains("open"))return;$("sheet").classList.remove("open");document.body.style.overflow=""}
 function resumeFor(k){
-  const v=k.vids,li=v.findIndex(x=>x.key===store.l[k.name]);
+  const v=k.vids,li=v.findIndex(x=>x.key===store.l[k.sid]);
   if(li>=0){if(!isDone(v[li]))return v[li];const n=v.slice(li+1).find(x=>!isDone(x));if(n)return n}
   return v.find(x=>!isDone(x))||null;
 }
@@ -490,7 +494,7 @@ function resetPlayer(){
   $("player").innerHTML='<div class="empty">Pilih satu kuliah untuk mula belajar.</div>';
 }
 function play(v){
-  clearInterval(timer);curVid=v;$("now").hidden=false;store.l[curK.name]=v.key;store.last=curK.name;save();
+  clearInterval(timer);curVid=v;$("now").hidden=false;store.l[curK.sid]=v.key;store.last=curK.sid;save();
   $("vTitle").textContent=v.title;$("vMeta").textContent=v.guru||v.kitab;
   $("note").value=store.n[v.key]||"";$("saved").textContent="";updateToggle();
   if(yt&&yt.destroy){try{yt.destroy()}catch(e){}}
