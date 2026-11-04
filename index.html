@@ -36,9 +36,9 @@ h1,h2,h3{font-family:var(--ft);margin:0;font-weight:600;line-height:1.25}
 .gu{display:flex;align-items:center;gap:6px;margin-top:5px;color:var(--mute);font-size:.86rem;min-width:0}
 .gn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .card .av{width:22px;height:22px;font-size:.6rem}
-.cp{display:flex;align-items:center;gap:10px;margin-top:8px}
-.cp .bar{flex:1;margin:0;height:5px}
-.cp>span{font-size:.82rem;font-weight:600;color:var(--mute);text-align:right;white-space:nowrap}
+.gk{margin-left:auto;padding-left:8px;font-weight:600;white-space:nowrap;flex:none}
+.gu .gk:first-child{margin-left:0;padding-left:0}
+#cats:empty{display:none}
 .av{--h:160;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex:none;background:hsl(var(--h) 45% 90%);color:hsl(var(--h) 55% 26%)}
 .av svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media(prefers-color-scheme:dark){.av{background:hsl(var(--h) 28% 26%);color:hsl(var(--h) 60% 80%)}}
@@ -352,8 +352,9 @@ function renderResume(){
   $("resume").innerHTML=`<button type="button" class="rs" data-i="${k.idx}" data-pv="${esc(t.key)}"><span class="rt"><small>Sambung belajar</small><span class="rn">${esc(k.name)}${k.dup&&k.guru0?" \u00b7 "+esc(k.guru0):""}</span><b>${k.vids.indexOf(t)+1}. ${esc(t.title)}</b>${pc?`<div class="bar"><i style="width:${pc}%"></i></div>`:""}</span><span class="rp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>`;
 }
 function renderHome(){
-  const cats=[...new Set(kitabList.map(k=>k.kat))];
-  $("cats").innerHTML=["all",...cats].map(c=>`<button data-c="${esc(c)}" class="${cat===c?"on":""}">${c==="all"?"Semua":esc(c)}</button>`).join("")
+  const cats=[...new Set(kitabList.map(k=>k.kat))],showCats=cats.some(c=>c!=="Umum");
+  if(!showCats)cat="all";
+  $("cats").innerHTML=(showCats?["all",...cats].map(c=>`<button data-c="${esc(c)}" class="${cat===c?"on":""}">${c==="all"?"Semua":esc(c)}</button>`).join(""):"")
     +(kitabList.some(k=>k.gurus.length)?`<button type="button" data-gopen class="gb ${guruSel?"on":""}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>${guruSel?esc(guruSel):"Penyampai"}</button>`:"");
   renderResume();
   const q=norm($("q").value),rows=[];
@@ -365,12 +366,11 @@ function renderHome(){
     rows.push({k,hit});
   });
   const groups={};
-  rows.forEach(r=>{const k=r.k,h=cat==="all"?k.kat+(k.bah?": "+k.bah:""):(k.bah||k.kat);(groups[h]=groups[h]||[]).push(r)});
-  $("groups").innerHTML=Object.keys(groups).map(h=>`<h2 class="gh">${esc(h)}</h2><div>`+groups[h].map(({k,hit},i)=>{
+  rows.forEach(r=>{const k=r.k,a=(k.kat==="Umum"&&!showCats)?"":k.kat,h=cat==="all"?[a,k.bah].filter(Boolean).join(": "):(k.bah||k.kat);(groups[h]=groups[h]||[]).push(r)});
+  $("groups").innerHTML=Object.keys(groups).map(h=>(h?`<h2 class="gh">${esc(h)}</h2>`:"")+`<div>`+groups[h].map(({k,hit},i)=>{
     const p=pct(k.vids),full=p===100&&k.vids.length>0;
     return `<div class="item"><span class="num ${full?"full":""}">${full?"\u2713":i+1}</span>
-    <button class="card" data-i="${k.idx}"${hit?` data-pv="${esc(hit.key)}"`:""}><b>${esc(k.name)}</b>${k.desc?`<span class="ds">${esc(k.desc)}</span>`:""}${k.gurus.length?`<div class="gu">${avatar(k.gurus[0])}<span class="gn">${esc(k.gurus[0])}${k.gurus.length>1?" +"+(k.gurus.length-1):""}</span></div>`:""}${hit?`<span class="hit">Kuliah ${k.vids.indexOf(hit)+1}: ${esc(hit.title)}</span>`:""}
-    <div class="cp"><div class="bar"><i style="width:${p}%"></i></div><span>${k.vids.length} kuliah \u00b7 ${full?"Selesai":p+"%"}</span></div></button></div>`
+    <button class="card" data-i="${k.idx}"${hit?` data-pv="${esc(hit.key)}"`:""}><b>${esc(k.name)}</b>${k.desc?`<span class="ds">${esc(k.desc)}</span>`:""}<div class="gu">${k.gurus.length?avatar(k.gurus[0])+`<span class="gn">${esc(k.gurus[0])}${k.gurus.length>1?" +"+(k.gurus.length-1):""}</span>`:""}<span class="gk">${k.vids.length} kuliah</span></div>${hit?`<span class="hit">Kuliah ${k.vids.indexOf(hit)+1}: ${esc(hit.title)}</span>`:""}</button></div>`
   }).join("")+`</div>`).join("")||`<div class="none">Tiada kitab dijumpai. Cuba ejaan lain, kategori lain atau penyampai lain.</div>`;
 }
 function renderG(){
